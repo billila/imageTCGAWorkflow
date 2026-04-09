@@ -1,0 +1,51 @@
+Package: imageTCGAWorkflow
+Type: Package
+Title: Workflow for Histopathology Image Analysis with TCGA Data
+Version: 1.0.0
+Authors@R: c(
+    person(
+      "Ilaria", "Billato",
+      email = "ilaria.billato@unipd.it",
+      role = c("aut", "cre"),
+      comment = c(ORCID = "0000-0002-1234-5678")
+    ),
+    person(
+      "Levi", "Waldron",
+      role = "ctb"
+    )
+  )
+Description: A Bioconductor workflow demonstrating end-to-end histopathology
+    image analysis using TCGA diagnostic whole-slide images. The workflow
+    covers: (1) data discovery with the imageTCGA Shiny application,
+    (2) retrieval of pre-computed HoVerNet nuclei segmentation and
+    Prov-GigaPath tile/slide embeddings via imageFeatureTCGA into
+    SpatialExperiment and MultiAssayExperiment objects, (3) spatial
+    statistical analysis (PCA, Moran's I, Geary's C, LISA) with
+    imageTCGAutils, and (4) overlay visualization of cell segmentation
+    on tissue thumbnails with HistoImagePlot.
+BiocType: Workflow
+License: Artistic-2.0
+Encoding: UTF-8
+LazyData: false
+biocViews: Workflow, Spatial, SingleCell, Pathology, ImmunoOncology,
+    DataImport, Visualization
+Depends:
+    R (>= 4.5.0)
+Imports:
+    imageTCGA,
+    imageFeatureTCGA,
+    imageTCGAutils,
+    HistoImagePlot,
+    GenomicDataCommons,
+    MultiAssayExperiment,
+    SpatialExperiment,
+    SingleCellExperiment,
+    BiocFileCache,
+    dplyr
+Suggests:
+    BiocStyle,
+    knitr,
+    rmarkdown,
+    sessioninfo
+VignetteBuilder: knitr
+RoxygenNote: 7.3.2
