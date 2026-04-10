@@ -2,9 +2,16 @@ pandoc: 3.1.11
 pkgdown: 2.2.0
 pkgdown_sha: ~
 articles:
+  download-tcga-images: download-tcga-images.html
+  downstream-analyses: downstream-analyses.html
   hovernet-reproducibility: hovernet-reproducibility.html
   imageTCGAWorkflow: imageTCGAWorkflow.html
-last_built: 2026-04-10T10:48Z
+  pkg-HistoImagePlot: pkg-HistoImagePlot.html
+  pkg-imageFeatureTCGA: pkg-imageFeatureTCGA.html
+  pkg-imageTCGA: pkg-imageTCGA.html
+  pkg-imageTCGAutils: pkg-imageTCGAutils.html
+  provgigapath-extraction: provgigapath-extraction.html
+last_built: 2026-04-10T14:22Z
 urls:
   reference: https://billila.github.io/imageTCGAWorkflow/reference
   article: https://billila.github.io/imageTCGAWorkflow/articles

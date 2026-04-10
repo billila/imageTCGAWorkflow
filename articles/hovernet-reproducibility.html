@@ -20,7 +20,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">imageTCGAWorkflow</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.0.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.99.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -36,8 +36,21 @@
 <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Workflow</h6></li>
     <li><hr class="dropdown-divider"></li>
-    <li><h6 class="dropdown-header" data-toc-skip>Reproducibility</h6></li>
+    <li><h6 class="dropdown-header" data-toc-skip>Data Access</h6></li>
+    <li><a class="dropdown-item" href="../articles/download-tcga-images.html">Downloading TCGA Diagnostic Images</a></li>
+    <li><hr class="dropdown-divider"></li>
+    <li><h6 class="dropdown-header" data-toc-skip>Feature Extraction</h6></li>
     <li><a class="dropdown-item" href="../articles/hovernet-reproducibility.html">Reproducing HoVerNet Nuclei Segmentation on TCGA Images</a></li>
+    <li><a class="dropdown-item" href="../articles/provgigapath-extraction.html">Prov-GigaPath Feature Extraction</a></li>
+    <li><hr class="dropdown-divider"></li>
+    <li><h6 class="dropdown-header" data-toc-skip>Packages</h6></li>
+    <li><a class="dropdown-item" href="../articles/pkg-imageTCGA.html">Package: imageTCGA</a></li>
+    <li><a class="dropdown-item" href="../articles/pkg-imageFeatureTCGA.html">Package: imageFeatureTCGA</a></li>
+    <li><a class="dropdown-item" href="../articles/pkg-imageTCGAutils.html">Package: imageTCGAutils</a></li>
+    <li><a class="dropdown-item" href="../articles/pkg-HistoImagePlot.html">Package: HistoImagePlot</a></li>
+    <li><hr class="dropdown-divider"></li>
+    <li><h6 class="dropdown-header" data-toc-skip>Downstream Analyses</h6></li>
+    <li><a class="dropdown-item" href="../articles/downstream-analyses.html">Downstream Analyses</a></li>
   </ul>
 </li>
       </ul>
@@ -315,9 +328,9 @@ rsync retry, up to 10 attempts with 5-minute intervals)</li>
 </tr>
 </tbody>
 </table>
-<p>These files are exactly what <code>imageFeatureTCGA</code> imports —
-see <a href="https://github.com/waldronlab/imageFeatureTCGA" class="external-link"><code>importHoVerNet()</code></a>
-for how to load them into a <code>SpatialExperiment</code>.</p>
+<p>These files are exactly what <code>imageFeatureTCGA</code> imports
+via <code>HoverNet() |&gt; import()</code> — see the <a href="pkg-imageFeatureTCGA.html">imageFeatureTCGA package page</a> for
+how to load them into a <code>SpatialExperiment</code>.</p>
 </div>
 <div class="section level2">
 <h2 id="scaling-with-a-mini-cluster">Scaling with a Mini-Cluster<a class="anchor" aria-label="anchor" href="#scaling-with-a-mini-cluster"></a>

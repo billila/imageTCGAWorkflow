@@ -1,9 +1,43 @@
-A Bioconductor workflow demonstrating end-to-end histopathology image
-analysis using TCGA diagnostic whole-slide images. The workflow covers:
-(1) data discovery with the imageTCGA Shiny application, (2) retrieval
-of pre-computed HoVerNet nuclei segmentation and Prov-GigaPath
-tile/slide embeddings via imageFeatureTCGA into SpatialExperiment and
-MultiAssayExperiment objects, (3) spatial statistical analysis (PCA,
-Moran's I, Geary's C, LISA) with imageTCGAutils, and (4) overlay
-visualization of cell segmentation on tissue thumbnails with
-HistoImagePlot.
+# imageTCGAWorkflow
+
+An end-to-end Bioconductor workflow for histopathology image analysis
+using TCGA diagnostic whole-slide images.
+
+## Ecosystem packages
+
+[TABLE]
+
+## Overview
+
+The TCGA image database contains ~11,765 diagnostic whole-slide images
+(WSI) from ~9,640 patients. This workflow covers:
+
+1.  **Data discovery** — browse and select images with the `imageTCGA`
+    Shiny app
+2.  **Data access** — download WSIs from GDC using `GenomicDataCommons`
+3.  **Feature retrieval** — import pre-computed HoVerNet and
+    Prov-GigaPath features via `imageFeatureTCGA`
+4.  **Spatial analysis** — PCA, Moran’s I, LISA with `imageTCGAutils`
+5.  **Visualization** — overlay cell segmentation on tissue thumbnails
+    with `HistoImagePlot`
+6.  **Downstream analyses** — multi-omics integration (MOFA+), pathway
+    analysis
+
+## Installation
+
+``` r
+if (!requireNamespace("BiocManager", quietly = TRUE))
+    install.packages("BiocManager")
+
+BiocManager::install(c(
+    "billila/imageTCGA",
+    "waldronlab/imageFeatureTCGA",
+    "waldronlab/imageTCGAutils",
+    "waldronlab/HistoImagePlot"
+))
+```
+
+## Website
+
+Full workflow documentation:
+<https://billila.github.io/imageTCGAWorkflow>

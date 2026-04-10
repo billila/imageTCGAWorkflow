@@ -1,10 +1,18 @@
 <urlset xmlns = 'http://www.sitemaps.org/schemas/sitemap/0.9'>
 <url><loc>https://billila.github.io/imageTCGAWorkflow/404.html</loc></url>
+<url><loc>https://billila.github.io/imageTCGAWorkflow/articles/download-tcga-images.html</loc></url>
+<url><loc>https://billila.github.io/imageTCGAWorkflow/articles/downstream-analyses.html</loc></url>
 <url><loc>https://billila.github.io/imageTCGAWorkflow/articles/hovernet-reproducibility.html</loc></url>
 <url><loc>https://billila.github.io/imageTCGAWorkflow/articles/imageTCGAWorkflow.html</loc></url>
 <url><loc>https://billila.github.io/imageTCGAWorkflow/articles/index.html</loc></url>
+<url><loc>https://billila.github.io/imageTCGAWorkflow/articles/pkg-HistoImagePlot.html</loc></url>
+<url><loc>https://billila.github.io/imageTCGAWorkflow/articles/pkg-imageFeatureTCGA.html</loc></url>
+<url><loc>https://billila.github.io/imageTCGAWorkflow/articles/pkg-imageTCGA.html</loc></url>
+<url><loc>https://billila.github.io/imageTCGAWorkflow/articles/pkg-imageTCGAutils.html</loc></url>
+<url><loc>https://billila.github.io/imageTCGAWorkflow/articles/provgigapath-extraction.html</loc></url>
 <url><loc>https://billila.github.io/imageTCGAWorkflow/authors.html</loc></url>
 <url><loc>https://billila.github.io/imageTCGAWorkflow/index.html</loc></url>
+<url><loc>https://billila.github.io/imageTCGAWorkflow/reference/imageTCGAWorkflow-package.html</loc></url>
 <url><loc>https://billila.github.io/imageTCGAWorkflow/reference/index.html</loc></url>
 </urlset>
 

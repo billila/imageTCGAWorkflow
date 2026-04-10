@@ -183,9 +183,10 @@ For each input SVS image, HoVerNet produces:
 | `<id>.h5ad`    | H5AD    | Feature matrix (intensity, morphology statistics)  |
 | `<id>.png`     | PNG     | Tissue thumbnail with segmentation overlay         |
 
-These files are exactly what `imageFeatureTCGA` imports — see
-[`importHoVerNet()`](https://github.com/waldronlab/imageFeatureTCGA) for
-how to load them into a `SpatialExperiment`.
+These files are exactly what `imageFeatureTCGA` imports via
+`HoverNet() |> import()` — see the [imageFeatureTCGA package
+page](https://billila.github.io/imageTCGAWorkflow/articles/pkg-imageFeatureTCGA.md)
+for how to load them into a `SpatialExperiment`.
 
 ## Scaling with a Mini-Cluster
 

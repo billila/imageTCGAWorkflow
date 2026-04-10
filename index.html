@@ -24,7 +24,7 @@
 
     <a class="navbar-brand me-2" href="index.html">imageTCGAWorkflow</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.0.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.99.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -40,8 +40,21 @@
 <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Workflow</h6></li>
     <li><hr class="dropdown-divider"></li>
-    <li><h6 class="dropdown-header" data-toc-skip>Reproducibility</h6></li>
+    <li><h6 class="dropdown-header" data-toc-skip>Data Access</h6></li>
+    <li><a class="dropdown-item" href="articles/download-tcga-images.html">Downloading TCGA Diagnostic Images</a></li>
+    <li><hr class="dropdown-divider"></li>
+    <li><h6 class="dropdown-header" data-toc-skip>Feature Extraction</h6></li>
     <li><a class="dropdown-item" href="articles/hovernet-reproducibility.html">Reproducing HoVerNet Nuclei Segmentation on TCGA Images</a></li>
+    <li><a class="dropdown-item" href="articles/provgigapath-extraction.html">Prov-GigaPath Feature Extraction</a></li>
+    <li><hr class="dropdown-divider"></li>
+    <li><h6 class="dropdown-header" data-toc-skip>Packages</h6></li>
+    <li><a class="dropdown-item" href="articles/pkg-imageTCGA.html">Package: imageTCGA</a></li>
+    <li><a class="dropdown-item" href="articles/pkg-imageFeatureTCGA.html">Package: imageFeatureTCGA</a></li>
+    <li><a class="dropdown-item" href="articles/pkg-imageTCGAutils.html">Package: imageTCGAutils</a></li>
+    <li><a class="dropdown-item" href="articles/pkg-HistoImagePlot.html">Package: HistoImagePlot</a></li>
+    <li><hr class="dropdown-divider"></li>
+    <li><h6 class="dropdown-header" data-toc-skip>Downstream Analyses</h6></li>
+    <li><a class="dropdown-item" href="articles/downstream-analyses.html">Downstream Analyses</a></li>
   </ul>
 </li>
       </ul>
@@ -57,14 +70,76 @@
   </div>
 </nav><div class="container template-home">
 <div class="row">
-  <main id="main" class="col-md-9">
-A Bioconductor workflow demonstrating end-to-end histopathology image analysis using TCGA diagnostic whole-slide images. The workflow covers: (1) data discovery with the imageTCGA Shiny application, (2) retrieval of pre-computed HoVerNet nuclei segmentation and Prov-GigaPath tile/slide embeddings via imageFeatureTCGA into SpatialExperiment and MultiAssayExperiment objects, (3) spatial statistical analysis (PCA, Moran's I, Geary's C, LISA) with imageTCGAutils, and (4) overlay visualization of cell segmentation on tissue thumbnails with HistoImagePlot.
+  <main id="main" class="col-md-9"><div class="section level1">
+<div class="page-header"><h1 id="imagetcgaworkflow">imageTCGAWorkflow<a class="anchor" aria-label="anchor" href="#imagetcgaworkflow"></a>
+</h1></div>
+<p>An end-to-end Bioconductor workflow for histopathology image analysis using TCGA diagnostic whole-slide images.</p>
+<div class="section level2">
+<h2 id="ecosystem-packages">Ecosystem packages<a class="anchor" aria-label="anchor" href="#ecosystem-packages"></a>
+</h2>
+<table class="table"><tr>
+<td align="center" width="200">
+<a href="https://github.com/billila/imageTCGA" class="external-link"> <img src="https://raw.githubusercontent.com/billila/imageTCGA/main/man/figures/logo.png" width="120" alt="imageTCGA"><br><strong>imageTCGA</strong> </a><br><em>Shiny app for image discovery</em>
+</td>
+<td align="center" width="200">
+<a href="https://github.com/waldronlab/imageFeatureTCGA" class="external-link"> <img src="https://raw.githubusercontent.com/waldronlab/imageFeatureTCGA/main/man/figures/logo.png" width="120" alt="imageFeatureTCGA"><br><strong>imageFeatureTCGA</strong> </a><br><em>Import HoVerNet &amp; GigaPath features</em>
+</td>
+<td align="center" width="200">
+<a href="https://github.com/waldronlab/imageTCGAutils" class="external-link"> <img src="https://raw.githubusercontent.com/waldronlab/imageTCGAutils/main/man/figures/logo.png" width="120" alt="imageTCGAutils"><br><strong>imageTCGAutils</strong> </a><br><em>Spatial statistics &amp; dimensionality reduction</em>
+</td>
+<td align="center" width="200">
+<a href="https://github.com/waldronlab/HistoImagePlot" class="external-link"> <img src="https://raw.githubusercontent.com/waldronlab/HistoImagePlot/main/man/figures/logo.png" width="120" alt="HistoImagePlot"><br><strong>HistoImagePlot</strong> </a><br><em>Histopathology visualization</em>
+</td>
+</tr></table>
+</div>
+<div class="section level2">
+<h2 id="overview">Overview<a class="anchor" aria-label="anchor" href="#overview"></a>
+</h2>
+<p>The TCGA image database contains ~11,765 diagnostic whole-slide images (WSI) from ~9,640 patients. This workflow covers:</p>
+<ol style="list-style-type: decimal">
+<li>
+<strong>Data discovery</strong> — browse and select images with the <code>imageTCGA</code> Shiny app</li>
+<li>
+<strong>Data access</strong> — download WSIs from GDC using <code>GenomicDataCommons</code>
+</li>
+<li>
+<strong>Feature retrieval</strong> — import pre-computed HoVerNet and Prov-GigaPath features via <code>imageFeatureTCGA</code>
+</li>
+<li>
+<strong>Spatial analysis</strong> — PCA, Moran’s I, LISA with <code>imageTCGAutils</code>
+</li>
+<li>
+<strong>Visualization</strong> — overlay cell segmentation on tissue thumbnails with <code>HistoImagePlot</code>
+</li>
+<li>
+<strong>Downstream analyses</strong> — multi-omics integration (MOFA+), pathway analysis</li>
+</ol>
+</div>
+<div class="section level2">
+<h2 id="installation">Installation<a class="anchor" aria-label="anchor" href="#installation"></a>
+</h2>
+<div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="kw">if</span> <span class="op">(</span><span class="op">!</span><span class="fu"><a href="https://rdrr.io/r/base/ns-load.html" class="external-link">requireNamespace</a></span><span class="op">(</span><span class="st">"BiocManager"</span>, quietly <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span><span class="op">)</span></span>
+<span>    <span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="st">"BiocManager"</span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu">BiocManager</span><span class="fu">::</span><span class="fu"><a href="https://bioconductor.github.io/BiocManager/reference/install.html" class="external-link">install</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span></span>
+<span>    <span class="st">"billila/imageTCGA"</span>,</span>
+<span>    <span class="st">"waldronlab/imageFeatureTCGA"</span>,</span>
+<span>    <span class="st">"waldronlab/imageTCGAutils"</span>,</span>
+<span>    <span class="st">"waldronlab/HistoImagePlot"</span></span>
+<span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
+</div>
+<div class="section level2">
+<h2 id="website">Website<a class="anchor" aria-label="anchor" href="#website"></a>
+</h2>
+<p>Full workflow documentation: <a href="https://billila.github.io/imageTCGAWorkflow" class="uri">https://billila.github.io/imageTCGAWorkflow</a></p>
+</div>
+</div>
   </main><aside class="col-md-3"><div class="links">
 <h2 data-toc-skip>Links</h2>
 <ul class="list-unstyled">
 <li><a href="https://github.com/billila/imageTCGAWorkflow/" class="external-link">Browse source code</a></li>
 <li><a href="https://github.com/billila/imageTCGAWorkflow/issues" class="external-link">Report a bug</a></li>
-<li><a href="https://bioconductor.org/packages/imageTCGAWorkflow" class="external-link">Bioconductor page</a></li>
 <li><a href="https://github.com/hpages/hovernethelp" class="external-link">hovernethelp (GPU setup)</a></li>
 <li><a href="https://github.com/billila/imageTCGAWorkflow/issues" class="external-link">Report a bug</a></li>
 </ul>

@@ -68,7 +68,7 @@ code.
 
 ``` r
 # Launch the Shiny app
-imageTCGA::run_app()
+imageTCGA::imageTCGA()
 ```
 
 The app displays:
@@ -101,85 +101,88 @@ pipelines are covered:
 ### Browse the data catalogue
 
 ``` r
-# Inspect the full data catalogue
-cat <- imageFeatureTCGA::imageCatalogue()
-head(cat)
+library(imageFeatureTCGA)
+library(dplyr)
+
+# Full catalogue (54,253 files)
+getCatalog()
+
+# HoVerNet files only
+getCatalog("hovernet")
+
+# ProvGigaPath files only
+getCatalog("provgigapath")
 ```
 
-The catalogue columns include `file_id`, `cases.submitter_id` (TCGA
-barcode), `cancer_type`, `pipeline`, `data_type`, and the remote `url`.
+Key columns: `pipeline`, `format`, `filename`, `tcga_barcode`,
+`Case.ID`, `Project.ID`, `level`.
+
+### Import HoVerNet data
+
+HoVerNet outputs are imported as `SpatialExperiment` where columns are
+nuclei and spatial coordinates are centroids in slide pixel space.
 
 ``` r
-# Filter to HoVerNet H5AD files for ovarian cancer
-ov_h5ad <- cat |>
-    dplyr::filter(cancer_type == "OV",
-                  pipeline == "HoVerNet",
-                  data_type == "h5ad")
+hspe <- getCatalog("hovernet") |>
+    dplyr::filter(
+        filename == paste(
+            "TCGA-VG-A8LO-01A-01-DX1",
+            "B39A4D64-82A1-4A04-8AB6-918F3058B83B",
+            "json", "gz", sep = "."
+        )
+    ) |>
+    getFileURLs() |>
+    HoverNet(outClass = "SpatialExperiment") |>
+    import()
 
-nrow(ov_h5ad)
-head(ov_h5ad[, c("cases.submitter_id", "pipeline", "data_type")])
+hspe
+colData(hspe)
 ```
 
-### Import into a SpatialExperiment (HoVerNet)
-
-HoVerNet outputs are imported as `SpatialExperiment` objects where each
-row is a nucleus and spatial coordinates reflect its centroid on the
-slide.
+### Import ProvGigaPath embeddings
 
 ``` r
-# Import HoVerNet H5AD data for a single slide
-spe_hover <- imageFeatureTCGA::importHoVerNet(
-    file_id  = ov_h5ad$file_id[1],
-    format   = "h5ad"
-)
-spe_hover
+# Slide-level: one 768-dim vector per WSI
+getCatalog("provgigapath") |>
+    dplyr::filter(
+        filename == paste(
+            "TCGA-VG-A8LO-01A-01-DX1",
+            "B39A4D64-82A1-4A04-8AB6-918F3058B83B",
+            "csv", "gz", sep = "."
+        ),
+        level == "slide_level"
+    ) |>
+    getFileURLs() |>
+    ProvGiga() |>
+    import()
+
+# Tile-level: one vector per 256×256 px tile, with tile_x and tile_y coordinates
+getCatalog("provgigapath") |>
+    dplyr::filter(
+        filename == paste(
+            "TCGA-VG-A8LO-01A-01-DX1",
+            "B39A4D64-82A1-4A04-8AB6-918F3058B83B",
+            "csv", "gz", sep = "."
+        ),
+        level == "tile_level"
+    ) |>
+    getFileURLs() |>
+    ProvGiga() |>
+    import()
 ```
 
-``` r
-# Import HoVerNet JSON (includes contours) for the same slide
-spe_json <- imageFeatureTCGA::importHoVerNet(
-    file_id  = ov_h5ad$file_id[1],
-    format   = "json"
-)
-```
-
-The resulting `SpatialExperiment` contains: - `assay("X")` – per-nucleus
-feature matrix (intensity statistics, morphology) - `spatialCoords()` –
-centroid (x, y) in slide pixel coordinates - `colData()` – cell type
-label, nucleus area, and QC flags
-
-### Import tile embeddings (Prov-GigaPath)
+### Import multiple slides
 
 ``` r
-# Filter catalogue to tile-level Prov-GigaPath files for one OV slide
-pg_tiles <- cat |>
-    dplyr::filter(cases.submitter_id == ov_h5ad$cases.submitter_id[1],
-                  pipeline == "ProvGigaPath",
-                  data_type == "tile_embeddings")
+# Import slide-level embeddings for multiple TCGA-GBM slides
+pgl <- getCatalog("provgigapath") |>
+    dplyr::filter(level == "slide_level", Project.ID == "TCGA-GBM") |>
+    dplyr::slice(1:3) |>
+    getFileURLs() |>
+    ProvGigaList() |>
+    import()
 
-spe_tiles <- imageFeatureTCGA::importProvGigaPath(
-    file_id  = pg_tiles$file_id[1],
-    level    = "tile"
-)
-spe_tiles
-```
-
-Each column is a 256 × 256 px tile; the 1,536-dimensional embedding
-vector from Prov-GigaPath is stored in `assay("embeddings")`.
-
-### Assemble a MultiAssayExperiment
-
-Both assays can be linked to TCGA clinical metadata in a single
-`MultiAssayExperiment`:
-
-``` r
-mae <- MultiAssayExperiment::MultiAssayExperiment(
-    experiments = list(
-        HoVerNet    = spe_hover,
-        GigaPath    = spe_tiles
-    )
-)
-mae
+pgl
 ```
 
 ------------------------------------------------------------------------
@@ -187,94 +190,36 @@ mae
 ## Step 3: Spatial Analysis with imageTCGAutils
 
 `imageTCGAutils` provides utility functions for dimensionality reduction
-and spatial autocorrelation on the tile- and nucleus-level data.
+and spatial autocorrelation on tile- and nucleus-level data imported by
+`imageFeatureTCGA`. Key capabilities include:
 
-### PCA on tile embeddings
+- **PCA** on Prov-GigaPath tile embeddings
+- **Global Moran’s I** and **Geary’s C** — spatial autocorrelation
+  statistics
+- **Local Moran’s I (LISA)** — identify spatially clustered tiles
+- **Nucleus-to-tile matching** — assign HoVerNet nuclei to their
+  containing Prov-GigaPath tile
 
-``` r
-# Run PCA on Prov-GigaPath tile embeddings and store result in reducedDim
-spe_tiles <- imageTCGAutils::runTilePCA(spe_tiles, ncomponents = 30)
-
-# Visualise first two PCs coloured by tissue region
-imageTCGAutils::plotTileReducedDim(spe_tiles, dimred = "PCA",
-                                    colour_by = "tissue_class")
-```
-
-### Spatial autocorrelation
-
-Moran’s I and Geary’s C quantify whether a feature (e.g. proportion of
-tumour nuclei in a tile) is spatially clustered, dispersed, or random.
-Local Moran’s I (LISA) identifies individual tiles that drive global
-clustering.
-
-``` r
-# Compute global Moran's I for the tumour-nucleus proportion per tile
-mi <- imageTCGAutils::globalMoransI(
-    spe   = spe_tiles,
-    assay = "embeddings",
-    feat  = "tumour_prop"
-)
-mi
-
-# Local Moran's I (LISA) — returns a SpatialExperiment with LISA scores
-spe_tiles <- imageTCGAutils::localMoransI(spe_tiles, feat = "tumour_prop")
-
-# Geary's C
-gc <- imageTCGAutils::globalGearysC(spe_tiles, feat = "tumour_prop")
-gc
-```
-
-### Matching HoVerNet nuclei to Prov-GigaPath tiles
-
-``` r
-# Assign each nucleus (spe_hover) to its containing tile (spe_tiles)
-spe_hover <- imageTCGAutils::matchNucleiToTiles(
-    nuclei = spe_hover,
-    tiles  = spe_tiles
-)
-# colData(spe_hover)$tile_id now contains the parent tile identifier
-```
+See the [imageTCGAutils package
+page](https://billila.github.io/imageTCGAWorkflow/articles/pkg-imageTCGAutils.md)
+and the [package
+documentation](https://github.com/waldronlab/imageTCGAutils) for
+function-level usage.
 
 ------------------------------------------------------------------------
 
 ## Step 4: Visualization with HistoImagePlot
 
-`HistoImagePlot` renders side-by-side panels of the tissue thumbnail and
-nucleus segmentation overlay, useful for quality control and for
-illustrating findings.
+`HistoImagePlot` renders side-by-side panels of the tissue thumbnail
+image and HoVerNet nucleus segmentation with coloured cell type labels.
+It accepts HoVerNet outputs in JSON and H5AD formats and fetches the
+corresponding thumbnail automatically via `BiocFileCache`.
 
-### Side-by-side thumbnail + segmentation
-
-``` r
-# Import HoVerNet JSON for the slide (includes nucleus contours)
-spe_json <- HistoImagePlot::importHoVerNetJSON(
-    file_id = ov_h5ad$file_id[1]
-)
-
-# Plot thumbnail next to coloured segmentation map
-HistoImagePlot::plotHistoImage(
-    spe        = spe_json,
-    colour_by  = "cell_type",
-    point_size = 0.4,
-    title      = paste("OV –", ov_h5ad$cases.submitter_id[1])
-)
-```
-
-Supported colour palettes can be passed via `palette =`. The thumbnail
-is fetched from the catalogue and cached automatically by
-`BiocFileCache`.
-
-### Overlay on a region of interest
-
-``` r
-# Restrict to a 2000 × 2000 px region starting at (5000, 3000)
-HistoImagePlot::plotHistoImage(
-    spe       = spe_json,
-    colour_by = "cell_type",
-    xlim      = c(5000, 7000),
-    ylim      = c(3000, 5000)
-)
-```
+See the [HistoImagePlot package
+page](https://billila.github.io/imageTCGAWorkflow/articles/pkg-HistoImagePlot.md)
+and the [package
+documentation](https://github.com/waldronlab/HistoImagePlot) for
+function-level usage.
 
 ------------------------------------------------------------------------
 
