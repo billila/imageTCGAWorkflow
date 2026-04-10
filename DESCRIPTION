@@ -25,6 +25,8 @@ Description: A Bioconductor workflow demonstrating end-to-end histopathology
     on tissue thumbnails with HistoImagePlot.
 BiocType: Workflow
 License: Artistic-2.0
+URL: https://billila.github.io/imageTCGAWorkflow, https://github.com/billila/imageTCGAWorkflow
+BugReports: https://github.com/billila/imageTCGAWorkflow/issues
 Encoding: UTF-8
 LazyData: false
 biocViews: Workflow, Spatial, SingleCell, Pathology, ImmunoOncology,

@@ -34,11 +34,6 @@ articles:
     contents:
       - imageTCGAWorkflow
 
-reference:
-  - title: Package
-    contents:
-      - imageTCGAWorkflow-package
-
 footer:
   structure:
     left: developed_by

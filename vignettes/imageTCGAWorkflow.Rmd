@@ -73,7 +73,7 @@ BiocManager::install(c(
 
 ## Load packages
 
-```{r load-pkgs}
+```{r load-pkgs, eval=FALSE}
 library(imageTCGA)
 library(imageFeatureTCGA)
 library(imageTCGAutils)
