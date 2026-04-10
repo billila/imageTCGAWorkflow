@@ -33,7 +33,7 @@ embeddings at two granularities:
 | Level | Unit | Embedding dim | Files in catalogue |
 |---|---|---|---|
 | **Tile level** | 256 × 256 px tile | 1,536 | ~14,000 CSV files |
-| **Slide level** | Entire WSI (aggregated) | 1,536 | ~7,000 CSV files |
+| **Slide level** | Entire WSI (aggregated) | 768 | ~7,000 CSV files |
 
 The resulting features are accessible without any GPU via
 `imageFeatureTCGA` — see the
