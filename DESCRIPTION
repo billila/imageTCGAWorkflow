@@ -27,7 +27,7 @@ biocViews: Workflow, Spatial, SingleCell, Pathology, ImmunoOncology,
     DataImport, Visualization
 Depends:
     R (>= 4.5.0)
-Imports:
+Suggests:
     imageTCGA,
     imageFeatureTCGA,
     imageTCGAutils,
@@ -37,8 +37,7 @@ Imports:
     SpatialExperiment,
     SingleCellExperiment,
     BiocFileCache,
-    dplyr
-Suggests:
+    dplyr,
     BiocStyle,
     knitr,
     rmarkdown,

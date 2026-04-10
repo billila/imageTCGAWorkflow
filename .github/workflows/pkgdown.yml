@@ -30,7 +30,7 @@ jobs:
         shell: Rscript {0}
 
       - name: Install this package (no dependencies)
-        run: R CMD INSTALL --no-docs --no-multiarch .
+        run: R CMD INSTALL --no-docs --no-multiarch --no-suggests .
 
       - name: Build site
         run: pkgdown::build_site_github_pages(new_process = FALSE, install = FALSE)
