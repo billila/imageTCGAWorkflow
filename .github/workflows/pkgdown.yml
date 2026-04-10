@@ -29,6 +29,9 @@ jobs:
         run: install.packages(c("pkgdown", "BiocStyle", "knitr", "rmarkdown", "sessioninfo"))
         shell: Rscript {0}
 
+      - name: Install this package (no dependencies)
+        run: R CMD INSTALL --no-docs --no-multiarch .
+
       - name: Build site
         run: pkgdown::build_site_github_pages(new_process = FALSE, install = FALSE)
         shell: Rscript {0}
