@@ -23,6 +23,8 @@ jobs:
           r-version: "release"
           use-public-rspm: true
 
+      - uses: r-lib/actions/setup-pandoc@v2
+
       - name: Install pkgdown and vignette dependencies
         run: install.packages(c("pkgdown", "BiocStyle", "knitr", "rmarkdown", "sessioninfo"))
         shell: Rscript {0}

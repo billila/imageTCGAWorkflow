@@ -2,11 +2,12 @@ Package: imageTCGAWorkflow
 Type: Package
 Title: Workflow for Histopathology Image Analysis with TCGA Data
 Version: 1.0.0
-Authors@R: c(
-    person("Ilaria", "Billato", , "ilaria.billato@unipd.it",
-        c("aut", "cre"), c(ORCID = "0000-0002-3335-3254", 
+Authors@R:
+    person("Ilaria", "Billato", email = "ilaria.billato@unipd.it",
+        role = c("aut", "cre"),
+        comment = c(ORCID = "0000-0002-3335-3254",
         affiliation = "Department of Biology, University of Padova")
-  )
+    )
 Description: A Bioconductor workflow demonstrating end-to-end histopathology
     image analysis using TCGA diagnostic whole-slide images. The workflow
     covers: (1) data discovery with the imageTCGA Shiny application,
