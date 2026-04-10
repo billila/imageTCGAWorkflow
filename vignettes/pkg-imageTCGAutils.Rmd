@@ -1,0 +1,183 @@
+---
+title: "Package: imageTCGAutils"
+author:
+  - name: Ilaria Billato
+    affiliation: Department of Biology, University of Padova
+date: "`r Sys.Date()`"
+package: imageTCGAWorkflow
+output:
+  BiocStyle::html_document:
+    toc: true
+    toc_float: true
+    number_sections: true
+vignette: >
+  %\VignetteIndexEntry{Package: imageTCGAutils}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(collapse = TRUE, comment = "#>", eval = FALSE)
+```
+
+# Overview
+
+**GitHub:** <https://github.com/waldronlab/imageTCGAutils>
+
+`imageTCGAutils` provides utility functions for integrating and analyzing
+multi-modal whole-slide image (WSI) data from TCGA. It is designed to work
+alongside `imageFeatureTCGA`, which handles import of pre-computed features
+from HoVerNet and Prov-GigaPath.
+
+```{r load}
+library(imageFeatureTCGA)
+library(imageTCGAutils)
+library(ggplot2)
+library(dplyr)
+library(sfdep)
+library(spdep)
+library(SpatialExperiment)
+library(data.table)
+```
+
+# Import Prov-GigaPath Tile-Level Embeddings
+
+```{r import-tiles}
+# Select an ovarian cancer slide as example
+tile_prov_url <- paste0(
+    "https://store.cancerdatasci.org/provgigapath/tile_level/",
+    "TCGA-23-1021-01Z-00-DX1.F07C221B-D401-47A5-9519-10DE59CA1E9D.csv.gz"
+)
+
+example_slide <- ProvGiga(tile_prov_url) |>
+    import()
+```
+
+# PCA on Tile Embeddings
+
+```{r pca}
+# Extract embedding columns (named with numbers: "0", "1", ...)
+embedding_cols <- grep("^[0-9]+$", names(example_slide), value = TRUE)
+
+# Run PCA
+pca_res <- prcomp(example_slide[, embedding_cols], scale. = TRUE)
+
+pca_example_slide <- bind_cols(
+    example_slide,
+    as_tibble(pca_res$x)[, 1:2]
+)
+
+# PCA scatter plot
+ggplot(pca_example_slide, aes(PC1, PC2)) +
+    geom_point(alpha = 0.6, size = 1) +
+    theme_minimal() +
+    labs(title = "Tile-level PCA Ovarian Cancer Embedding: Single Slide")
+
+# Spatial layout coloured by PC1
+ggplot(pca_example_slide, aes(tile_x, tile_y, color = PC1)) +
+    geom_point(size = 1) +
+    scale_color_viridis_c() +
+    coord_equal() +
+    theme_minimal() +
+    labs(title = "Tissue layout colored by PC1")
+```
+
+# Spatial Autocorrelation
+
+To investigate spatial patterns, we build a k-nearest neighbour graph
+from tile coordinates and compute global and local spatial autocorrelation
+on the PCA-reduced embeddings.
+
+```{r spatial-weights}
+coords <- pca_example_slide[, c("tile_x", "tile_y")]
+nb <- knn2nb(knearneigh(coords, k = 6))
+lw <- nb2listw(nb, style = "W")
+```
+
+## Global Moran's I and Geary's C
+
+```{r global}
+mi <- moran.test(pca_example_slide$PC1, lw)
+gc <- geary.test(pca_example_slide$PC1, lw)
+
+mi
+gc
+```
+
+Moran's I ∈ [−1, 1]: positive values indicate spatial clustering.
+Geary's C ∈ [0, 2]: values < 1 indicate positive spatial autocorrelation.
+
+## Local Moran's I (LISA)
+
+```{r lisa}
+lisa <- localmoran(pca_example_slide$PC1, lw)
+pca_example_slide$localI      <- lisa[, "Ii"]
+pca_example_slide$localI_pval <- lisa[, "Pr(z != E(Ii))"]
+
+# Moran scatterplot
+moran.plot(pca_example_slide$PC1, lw, labels = FALSE,
+           main = "Moran scatterplot of PC1")
+
+# LISA spatial map
+ggplot(pca_example_slide, aes(x = tile_x, y = tile_y, color = localI)) +
+    geom_point(size = 0.5) +
+    scale_color_viridis_c() +
+    coord_equal() +
+    theme_minimal() +
+    ggtitle("Local Moran's I (LISA) for PC1")
+```
+
+# Integration with HoVerNet Nuclei
+
+`matchHoverNetToTiles()` computes the scaling factor between HoVerNet nucleus
+coordinates and Prov-GigaPath tile coordinates, then assigns each tile a
+dominant cell type and nucleus count based on the overlapping nuclei.
+
+```{r import-hover}
+hov_file <- paste0(
+    "https://store.cancerdatasci.org/hovernet/h5ad/",
+    "TCGA-23-1021-01Z-00-DX1.F07C221B-D401-47A5-9519-10DE59CA1E9D.h5ad.gz"
+)
+
+hn_spe <- HoverNet(hov_file, outClass = "SpatialExperiment") |>
+    import()
+```
+
+```{r plot-coords}
+# Visualise nucleus vs tile coordinates — they use different scales
+cell_coords <- spatialCoords(hn_spe)
+
+plot(cell_coords[, 1], cell_coords[, 2],
+     pch = 16, col = "#0000FF20",
+     main = "HoVerNet nuclei (blue) vs GigaPath tiles (red)")
+points(pca_example_slide$tile_x, pca_example_slide$tile_y,
+       pch = 16, col = "#FF000020")
+```
+
+```{r match}
+pg_spe <- ProvGiga(tile_prov_url) |> import()
+
+match_hv_pg <- matchHoverNetToTiles(hn_spe, pg_spe)
+
+# Dominant cell type per tile
+ggplot(match_hv_pg$tiles_with_nuclei,
+       aes(tile_x, tile_y, color = dominant_cell_type)) +
+    geom_point(size = 2) +
+    coord_equal() +
+    theme_minimal() +
+    labs(title = "Per-tile dominant HoVerNet cell type")
+
+# All cell types per tile (sized by count)
+ggplot(match_hv_pg$tiles_with_nuclei,
+       aes(tile_x, tile_y, color = cell_type_label, size = N)) +
+    geom_point(alpha = 0.7) +
+    coord_equal() +
+    theme_minimal() +
+    labs(title = "All HoVerNet cell types per tile")
+```
+
+# Session Information
+
+```{r session-info, eval=TRUE}
+sessioninfo::session_info()
+```
