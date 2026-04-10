@@ -6,6 +6,9 @@ template:
   bslib:
     primary: "#621681"
     pkgdown-nav-height: 64px
+  includes:
+    in_header: |
+      <style>.pkg-logo { display: none !important; }</style>
 
 home:
   title: "imageTCGAWorkflow"
