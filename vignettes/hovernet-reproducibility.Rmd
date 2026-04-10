@@ -1,0 +1,217 @@
+---
+title: "Reproducing HoVerNet Nuclei Segmentation on TCGA Images"
+author:
+  - name: Ilaria Billato
+    affiliation: Department of Biology, University of Padova
+date: "`r Sys.Date()`"
+package: imageTCGAWorkflow
+output:
+  BiocStyle::html_document:
+    toc: true
+    toc_float: true
+    number_sections: true
+vignette: >
+  %\VignetteIndexEntry{Reproducing HoVerNet Nuclei Segmentation}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(collapse = TRUE, comment = "#>", eval = FALSE)
+```
+
+# Overview
+
+This document describes how to reproduce the HoVerNet nuclei segmentation
+results that underlie the pre-computed features available in
+[imageFeatureTCGA](https://github.com/waldronlab/imageFeatureTCGA).
+
+The complete setup instructions, scripts, and environment files are maintained
+in the **[hovernethelp](https://github.com/hpages/hovernethelp)** repository
+by Hervé Pagès.
+
+HoVer-Net ([Graham et al., 2019](https://doi.org/10.1016/j.media.2019.101563))
+performs simultaneous nuclei **detection**, **segmentation**, and **classification**
+on histopathology whole-slide images (WSI). The pipeline was run on all TCGA
+diagnostic images and the outputs (JSON, GeoJSON, H5AD, thumbnails) are
+accessible via `imageFeatureTCGA`.
+
+# Hardware Requirements
+
+Running HoVerNet from scratch requires GPU resources:
+
+| Resource | Minimum |
+|---|---|
+| GPU | NVIDIA A100 or L40S |
+| CPUs | 16 |
+| RAM | 60 GB |
+| OS | Ubuntu 24.04 |
+| Storage | ~780 GB for full TCGA outputs |
+
+Processing time is approximately **76–81 minutes per image** on a single GPU node.
+A 7-node mini-cluster (described below) achieves the full TCGA dataset in
+15–25 hours.
+
+> If you only need the pre-computed results, skip to the
+> [imageFeatureTCGA workflow vignette](imageTCGAWorkflow.html) — no GPU is
+> required to access the stored features.
+
+# Environment Setup
+
+All instructions below follow the
+[hovernethelp setup guide](https://github.com/hpages/hovernethelp/blob/main/setup_hovernet_Ubuntu2404.txt).
+
+## GPU drivers
+
+For **NVIDIA A100**:
+```bash
+sudo apt-get install nvidia-linux-grid-535
+```
+
+For **NVIDIA L40S**:
+```bash
+sudo apt-get install nvidia-driver-550
+```
+
+Verify the installation:
+```bash
+nvidia-smi
+```
+
+## Miniconda and HoVer-Net
+
+```bash
+# Install Miniconda
+wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh
+bash Miniconda3-latest-Linux-x86_64.sh
+conda init bash && source ~/.bashrc
+
+# Clone HoVer-Net
+git clone https://github.com/vqdang/hover_net
+cd hover_net
+
+# Create conda environment from hovernethelp
+wget https://raw.githubusercontent.com/hpages/hovernethelp/main/environment.yml
+conda env create -f environment.yml
+conda activate hovernet
+```
+
+The `environment.yml` pins key packages:
+
+- Python 3.12.3
+- PyTorch 2.5.1
+- `opencv-python`, `scikit-image`, `scikit-learn`, `scipy`, `pandas`
+- `openslide` for whole-slide image reading
+
+## Pre-trained model
+
+The pannuke_type model (TF2→PyTorch conversion) is downloaded with `gdown`:
+
+```bash
+pip install gdown
+gdown <model_gdrive_id> -O pannuke_type_tf2pytorch.tar
+tar -xf pannuke_type_tf2pytorch.tar
+```
+
+See the [hovernethelp setup file](https://github.com/hpages/hovernethelp/blob/main/setup_hovernet_Ubuntu2404.txt)
+for the exact model ID and path configuration.
+
+# Downloading TCGA Images
+
+Images are downloaded using the `GenomicDataCommons` Bioconductor package.
+The `imageTCGA` Shiny app generates the query code interactively (see the
+[main workflow vignette](imageTCGAWorkflow.html#step-1-data-discovery-with-imagetcga)).
+
+```r
+# Example: download a single OV diagnostic image
+library(GenomicDataCommons)
+
+q <- files() |>
+    filter(~ cases.project.project_id == "TCGA-OV" &
+               data_type == "Slide Image" &
+               experimental_strategy == "Diagnostic Slide") |>
+    results(size = 1)
+
+gdcdata(q$file_id, destination_dir = "tcga_images/")
+```
+
+# Running HoVerNet Inference
+
+## Single image
+
+```bash
+python run_infer.py \
+  --gpu='0' \
+  --nr_types=6 \
+  --type_info_path=type_info.json \
+  --batch_size=12 \
+  --model_mode=original \
+  --model_path=pannuke_type_tf2pytorch/hovernet_fast_pannuke_type_tf2pytorch.tar \
+  --nr_inference_workers=1 \
+  --nr_post_proc_workers=3 \
+  wsi \
+  --input_dir=tcga_images/ \
+  --output_dir=hovernet_output/ \
+  --save_thumb \
+  --save_mask
+```
+
+Key parameters:
+
+| Parameter | Value | Note |
+|---|---|---|
+| `nr_types` | 6 | Nuclei classes (neoplastic, inflammatory, connective, dead, epithelial, background) |
+| `batch_size` | 12 | Adjust to GPU memory |
+| `nr_inference_workers` | 1 | GPU workers |
+| `nr_post_proc_workers` | 3 | CPU post-processing workers |
+
+## Batch processing (multiple images)
+
+The
+[`infer_batch2.sh`](https://github.com/hpages/hovernethelp/blob/main/infer_batch2.sh)
+script automates the full pipeline:
+
+1. Reads a manifest of TCGA image IDs to process
+2. Downloads each SVS file via `GenomicDataCommons` (with rsync retry, up to
+   10 attempts with 5-minute intervals)
+3. Runs HoVerNet inference and validates JSON output
+4. Pushes results to a central storage node (`hoverboss`)
+5. Updates the manifest with success/failure status and timestamps
+
+```bash
+# Usage
+bash infer_batch2.sh manifest.tsv
+```
+
+# Output Files
+
+For each input SVS image, HoVerNet produces:
+
+| File | Format | Content |
+|---|---|---|
+| `<id>.json` | JSON | Per-nucleus centroid, contour, type, probabilities |
+| `<id>.geojson` | GeoJSON | Same data in GIS-compatible format |
+| `<id>.h5ad` | H5AD | Feature matrix (intensity, morphology statistics) |
+| `<id>.png` | PNG | Tissue thumbnail with segmentation overlay |
+
+These files are exactly what `imageFeatureTCGA` imports — see
+[`importHoVerNet()`](https://github.com/waldronlab/imageFeatureTCGA) for
+how to load them into a `SpatialExperiment`.
+
+# Scaling with a Mini-Cluster
+
+The [hovernethelp minicluster setup](https://github.com/hpages/hovernethelp/tree/main/minicluster)
+describes a 7-node architecture:
+
+- **Worker nodes** (`hovernet1–4`, `hovernet6–7`, `kakapo1`): GPU nodes running inference
+- **Central node** (`hoverboss`): 4 CPUs, 779 GB storage, collects results
+
+Workers sync completed JSON/H5AD files to `hoverboss` via cron every 15 minutes.
+Each worker processes a non-overlapping range of the TCGA image list. Total
+throughput: **100+ images/day**, completing the full TCGA dataset in 15–25 hours.
+
+# Session Information
+
+```{r session-info, eval=TRUE}
+sessioninfo::session_info()
+```
