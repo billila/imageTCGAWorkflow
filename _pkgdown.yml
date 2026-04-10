@@ -21,6 +21,7 @@ home:
 reference: ~
 
 navbar:
+  logo: ~
   structure:
     left:  [intro, articles]
     right: [search, github]
