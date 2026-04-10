@@ -1,5 +1,7 @@
 # imageTCGAWorkflow
 
+![imageTCGAworkflow logo](reference/figures/logo.png)
+
 An end-to-end Bioconductor workflow for histopathology image analysis
 using TCGA diagnostic whole-slide images.
 
@@ -20,8 +22,10 @@ The TCGA image database contains ~11,765 diagnostic whole-slide images
 4.  **Spatial analysis** — PCA, Moran’s I, LISA with `imageTCGAutils`
 5.  **Visualization** — overlay cell segmentation on tissue thumbnails
     with `HistoImagePlot`
-6.  **Downstream analyses** — multi-omics integration (MOFA+), pathway
-    analysis
+6.  **Downstream analyses** — multi-omics integration (MOFA+), point
+    pattern analysis, survival
+
+![Workflow schema](images/workflow-schema.png)
 
 ## Installation
 
