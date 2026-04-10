@@ -1,7 +1,5 @@
 # imageTCGAWorkflow
 
-![imageTCGAworkflow logo](reference/figures/logo.png)
-
 An end-to-end Bioconductor workflow for histopathology image analysis
 using TCGA diagnostic whole-slide images.
 
