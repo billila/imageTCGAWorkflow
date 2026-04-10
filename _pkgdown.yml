@@ -4,7 +4,7 @@ template:
   bootstrap: 5
   bootswatch: flatly
   bslib:
-    primary: "#0054AD"      # Bioconductor blue
+    primary: "#621681"
     pkgdown-nav-height: 64px
 
 home:
@@ -13,8 +13,6 @@ home:
     End-to-end Bioconductor workflow for histopathology image analysis
     using TCGA diagnostic whole-slide images.
   links:
-    - text: Bioconductor page
-      href: https://bioconductor.org/packages/imageTCGAWorkflow
     - text: hovernethelp (GPU setup)
       href: https://github.com/hpages/hovernethelp
     - text: Report a bug
@@ -37,10 +35,30 @@ articles:
     navbar: Workflow
     contents:
       - imageTCGAWorkflow
-  - title: Reproducibility
-    navbar: Reproducibility
+
+  - title: Data Access
+    navbar: Data Access
+    contents:
+      - download-tcga-images
+
+  - title: Feature Extraction
+    navbar: Feature Extraction
     contents:
       - hovernet-reproducibility
+      - provgigapath-extraction
+
+  - title: Packages
+    navbar: Packages
+    contents:
+      - pkg-imageTCGA
+      - pkg-imageFeatureTCGA
+      - pkg-imageTCGAutils
+      - pkg-HistoImagePlot
+
+  - title: Downstream Analyses
+    navbar: Downstream Analyses
+    contents:
+      - downstream-analyses
 
 footer:
   structure:
