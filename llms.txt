@@ -1,0 +1,23 @@
+A Bioconductor workflow demonstrating end-to-end histopathology image
+analysis using TCGA diagnostic whole-slide images. The workflow covers:
+(1) data discovery with the imageTCGA Shiny application, (2) retrieval
+of pre-computed HoVerNet nuclei segmentation and Prov-GigaPath
+tile/slide embeddings via imageFeatureTCGA into SpatialExperiment and
+MultiAssayExperiment objects, (3) spatial statistical analysis (PCA,
+Moran's I, Geary's C, LISA) with imageTCGAutils, and (4) overlay
+visualization of cell segmentation on tissue thumbnails with
+HistoImagePlot.
+
+# 
+
+# Articles
+
+### Workflow
+
+- [Histopathology Image Analysis with TCGA Data: an end-to-end
+  workflow](https://billila.github.io/imageTCGAWorkflow/articles/imageTCGAWorkflow.md):
+
+### Reproducibility
+
+- [Reproducing HoVerNet Nuclei Segmentation on TCGA
+  Images](https://billila.github.io/imageTCGAWorkflow/articles/hovernet-reproducibility.md):
