@@ -18,9 +18,11 @@ home:
     - text: Report a bug
       href: https://github.com/billila/imageTCGAWorkflow/issues
 
+reference: ~
+
 navbar:
   structure:
-    left:  [intro, articles, reference]
+    left:  [intro, articles]
     right: [search, github]
   components:
     github:
