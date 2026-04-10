@@ -1,0 +1,202 @@
+---
+title: "Downloading TCGA Diagnostic Images"
+author:
+  - name: Ilaria Billato
+    affiliation: Department of Biology, University of Padova
+date: "`r Sys.Date()`"
+package: imageTCGAWorkflow
+output:
+  BiocStyle::html_document:
+    toc: true
+    toc_float: true
+    number_sections: true
+vignette: >
+  %\VignetteIndexEntry{Downloading TCGA Diagnostic Images}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(collapse = TRUE, comment = "#>", eval = FALSE)
+```
+
+# Introduction
+
+The TCGA diagnostic image database contains approximately **11,765 whole-slide
+images (WSI)** in SVS format from ~9,640 patients across 32 cancer types.
+Images are freely available from the
+[NIH Genomic Data Commons (GDC)](https://portal.gdc.cancer.gov/).
+
+Two complementary ways to find and download images are covered here:
+
+1. **`imageTCGA` Shiny app** — interactive point-and-click interface with
+   clinical filters and code generation
+2. **`GenomicDataCommons` R package** — programmatic access for scripted or
+   large-scale downloads
+
+# Option 1: Shiny App (imageTCGA)
+
+The `imageTCGA` app provides an interactive interface to the full TCGA image
+catalogue. It is the recommended starting point for exploratory data selection.
+
+```{r shiny, eval=FALSE}
+
+imageTCGA::imageTCGA()
+```
+
+## App features
+
+**Filter panel** — narrow down images by:
+
+- Cancer type (project ID, e.g. TCGA-OV, TCGA-BRCA)
+- Histological type
+- Tumour grade and stage
+- Patient sex and age range
+
+**Dot plots** — available for gynaecological tumours (BRCA, OV, UCS, UCEC),
+showing image counts stratified by clinical variables.
+
+**Interactive maps** — display the geographic origin of each image at three
+levels: institution (centre), US state, and country.
+
+**Code generation panel** — once you are satisfied with the filter selection,
+click *Generate code*. The app outputs a ready-to-run `GenomicDataCommons`
+query (see Option 2 below) that you can copy directly into your R session.
+
+# Option 2: GenomicDataCommons (programmatic)
+
+The `GenomicDataCommons` Bioconductor package provides direct programmatic
+access to the GDC REST API.
+
+## Installation
+
+```{r install-gdc}
+BiocManager::install("GenomicDataCommons")
+library(GenomicDataCommons)
+```
+
+## Query the image catalogue
+
+```{r query}
+# Authenticate (only needed for controlled-access data; images are open-access)
+# gdc_token() # not required for diagnostic slides
+
+# Build a query for diagnostic slides from ovarian cancer
+q <- files() |>
+    GenomicDataCommons::filter(
+        ~ cases.project.project_id == "TCGA-OV" &
+          data_type             == "Slide Image" &
+          experimental_strategy == "Diagnostic Slide"
+    )
+
+# Preview results
+res <- results(q, size = 10)
+res[, c("file_id", "file_name", "file_size")]
+```
+
+## Filter by clinical metadata
+
+```{r filter-clinical}
+# Add clinical filters: stage IV, high-grade serous
+q_filtered <- files() |>
+    GenomicDataCommons::filter(
+        ~ cases.project.project_id               == "TCGA-OV" &
+          data_type                              == "Slide Image" &
+          experimental_strategy                  == "Diagnostic Slide" &
+          cases.diagnoses.tumor_stage            == "stage iv" &
+          cases.diagnoses.morphology             == "8441/3"   # serous cystadenocarcinoma
+    )
+
+res_filtered <- results(q_filtered, size = 100)
+nrow(res_filtered)
+```
+
+## Check available metadata fields
+
+```{r fields}
+# See all filterable fields for files
+available_fields("files") |> grep("cases", x = _, value = TRUE) |> head(20)
+```
+
+## Download images
+
+```{r download}
+# Download a single image
+file_ids <- results(q, size = 1)$file_id
+
+gdcdata(
+    uuids           = file_ids,
+    destination_dir = "tcga_images/",
+    progress        = TRUE
+)
+```
+
+The downloaded SVS files can be very large (500 MB – 3 GB each). For
+large-scale downloads, consider running on an HPC system and using the
+[GDC Data Transfer Tool](https://gdc.cancer.gov/access-data/gdc-data-transfer-tool)
+(command-line client).
+
+## GDC Data Transfer Tool (batch download)
+
+For hundreds of images, create a manifest file from the GDC portal or
+via R and use the CLI tool:
+
+```{r manifest}
+# Write a manifest
+manifest(q_filtered) |> write.table("gdc_manifest.txt",
+    sep = "\t", quote = FALSE, row.names = FALSE)
+```
+
+```bash
+# Then download with the GDC client
+gdc-client download -m gdc_manifest.txt -d tcga_images/
+```
+
+## Metadata retrieval
+
+Clinical and demographic metadata can be retrieved alongside file metadata:
+
+```{r metadata}
+# Get associated case metadata
+case_ids <- res$cases |> sapply(\(x) x[[1]])
+
+cases() |>
+    GenomicDataCommons::filter(~ case_id %in% case_ids) |>
+    select(c("case_id",
+             "diagnoses.tumor_stage",
+             "diagnoses.morphology",
+             "demographic.gender",
+             "demographic.age_at_index")) |>
+    results(size = length(case_ids))
+```
+
+# Image Format
+
+TCGA diagnostic images are stored as **SVS** (Aperio ScanScope) files, a
+multi-resolution pyramidal TIFF format. In R, raw SVS files are typically
+not opened directly — instead, pre-computed features (HoVerNet nuclei
+segmentation, Prov-GigaPath embeddings) are accessed via `imageFeatureTCGA`
+without requiring the original images.
+
+If you need to inspect SVS files directly, use the
+[openslide-python](https://openslide.org/api/python/) library:
+
+```bash
+# Install the system library and Python bindings
+pip install openslide-bin openslide-python
+
+# Inspect a slide in Python
+python3 -c "
+import openslide
+slide = openslide.OpenSlide('tcga_images/TCGA-XX-XXXX.svs')
+print('Levels:', slide.level_count)
+print('Dimensions:', slide.dimensions)
+print('MPP:', slide.properties.get('openslide.mpp-x'))
+"
+```
+
+# Session Information
+
+```{r session-info, eval=TRUE}
+sessioninfo::session_info()
+```
