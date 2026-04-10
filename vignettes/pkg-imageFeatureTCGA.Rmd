@@ -85,6 +85,12 @@ hspe <- getCatalog("hovernet") |>
     import()
 
 hspe
+#> class: SpatialExperiment
+#> dim: 0 67081
+#> metadata(1): type_map
+#> assays(1): counts
+#> colData names(10): cell_id x ... B sample_id
+#> spatialCoords names(2): x y
 ```
 
 Each nucleus has:
@@ -102,7 +108,8 @@ colData(hspe)
 
 ## Slide-level embeddings
 
-Each row is a slide; the embedding vector summarises the entire WSI.
+Each row is a slide; the embedding vector (768 dimensions, named `V1`…`V768`)
+summarises the entire WSI. `ProvGiga()` for a single file returns a tibble.
 
 ```{r slide-level}
 getCatalog("provgigapath") |>
@@ -117,6 +124,11 @@ getCatalog("provgigapath") |>
     getFileURLs() |>
     ProvGiga() |>
     import()
+#> # A tibble: 1 × 771
+#>   slideName  tumorType fileName     V1     V2     V3  ...
+#>   <chr>      <chr>     <chr>     <dbl>  <dbl>  <dbl>
+#> 1 TCGA-VG-…  <NA>      TCGA-VG… -0.355 0.584 -0.402 …
+#> # ℹ 768 embedding columns (V1–V768) + 3 metadata columns
 ```
 
 ## Tile-level embeddings
@@ -137,6 +149,11 @@ getCatalog("provgigapath") |>
     getFileURLs() |>
     ProvGiga() |>
     import()
+#> # A tibble: 211 × 1,543
+#>   slide_name  tile_id tile_name tile_x tile_y    `0`    `1`  ...
+#>   <chr>         <dbl> <chr>      <dbl>  <dbl>  <dbl>  <dbl>
+#> 1 TCGA-VG-…        0 02155x_…   2155  18612  0.177  -1.42  …
+#> # ℹ 201 more rows; 1,536 embedding columns (named `0`–`1535`) + tile_x, tile_y
 ```
 
 # Importing Multiple Files
@@ -155,6 +172,11 @@ pgl <- getCatalog("provgigapath") |>
     import()
 
 pgl
+#> class: SummarizedExperiment
+#> dim: 768 3
+#> metadata(5): slideName tumorType fileName patientIds sampleIds
+#> assays(1): embeddings
+#> colnames(3): TCGA-02-0001-01Z-00-DX1 TCGA-02-0001-01Z-00-DX2 TCGA-02-0001-01Z-00-DX3
 ```
 
 ```{r mixed-levels}
@@ -173,7 +195,16 @@ pgl_mixed <- getCatalog("provgigapath") |>
     import()
 
 pgl_mixed$slide_level
+#> class: SummarizedExperiment
+#> dim: 768 1
+#> assays(1): embeddings
+#> colnames(1): TCGA-VG-A8LO-01A-01-DX1
+
 pgl_mixed$tile_level
+#> class: SummarizedExperiment
+#> dim: 1538 1
+#> assays(1): tiles
+#> colnames(1): TCGA-VG-A8LO-01A-01-DX1
 ```
 
 
