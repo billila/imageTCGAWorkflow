@@ -1,0 +1,88 @@
+---
+title: "Package: imageTCGA"
+author:
+  - name: Ilaria Billato
+    affiliation: Department of Biology, University of Padova
+date: "`r Sys.Date()`"
+package: imageTCGAWorkflow
+output:
+  BiocStyle::html_document:
+    toc: true
+    toc_float: true
+    number_sections: true
+vignette: >
+  %\VignetteIndexEntry{Package: imageTCGA}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(collapse = TRUE, comment = "#>", eval = FALSE)
+```
+
+# Overview
+
+**GitHub:** <https://github.com/billila/imageTCGA>
+
+`imageTCGA` is a Shiny application for interactive exploration of the
+TCGA diagnostic image database. It provides clinical and geographical
+filtering of ~11,765 images from ~9,640 patients, and generates
+ready-to-run `GenomicDataCommons` R code for downloading selected images.
+
+# Launch the app
+
+```{r run}
+library(imageTCGA)
+imageTCGA::imageTCGA()
+```
+
+# Features
+
+## Clinical filtering
+
+The left panel allows filtering by:
+
+- **Project** (cancer type, e.g. TCGA-OV, TCGA-BRCA)
+- **Histological type** (morphology code)
+- **Tumour grade** and **stage**
+
+
+## Dot plots
+
+For gynaecological tumours (BRCA, OV, UCS, UCEC), dot plots show the
+distribution of images across clinical strata.
+
+## Interactive maps
+
+Images are annotated with the contributing institution. The map tab
+displays image origins at three levels:
+
+- Institution (centre name)
+- US state
+- Country
+
+## Code generation
+
+After applying filters, the **Generate code** panel produces a
+`GenomicDataCommons` query that reproduces the current selection:
+
+```{r generated-code-example}
+# Example of generated code:
+library(GenomicDataCommons)
+files() |>
+    filter(
+        ~ cases.project.project_id == "TCGA-OV" &
+          data_type == "Slide Image" &
+          experimental_strategy == "Diagnostic Slide"
+    ) |>
+    results(size = 100)
+```
+
+Copy this code into your R session, then pass the `file_id` column to
+`gdcdata()` to download the SVS files.
+
+# Session Information
+
+```{r session-info, eval=TRUE}
+sessioninfo::session_info()
+```
