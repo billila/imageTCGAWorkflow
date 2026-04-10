@@ -1,0 +1,152 @@
+---
+title: "Package: HistoImagePlot"
+author:
+  - name: Ilaria Billato
+    affiliation: Department of Biology, University of Padova
+date: "`r Sys.Date()`"
+package: imageTCGAWorkflow
+output:
+  BiocStyle::html_document:
+    toc: true
+    toc_float: true
+    number_sections: true
+vignette: >
+  %\VignetteIndexEntry{Package: HistoImagePlot}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(collapse = TRUE, comment = "#>", eval = FALSE)
+```
+
+# Overview
+
+**GitHub:** <https://github.com/waldronlab/HistoImagePlot>
+
+`HistoImagePlot` provides visualization tools for histopathology research,
+working alongside `imageFeatureTCGA` to import and display HoVerNet nuclei
+segmentation results overlaid on tissue thumbnail images.
+
+Supported HoVerNet input formats:
+
+| Format | Extension | Content |
+|---|---|---|
+| H5AD | `.h5ad` / `.h5ad.gz` | Feature matrix + spatial statistics (mean intensity, nearest-neighbour distance) |
+| JSON | `.json` / `.json.gz` | Nucleus centroids, contours, type, probabilities |
+
+```{r load}
+library(imageFeatureTCGA)
+library(HistoImagePlot)
+library(dplyr)
+library(SpatialExperiment)
+library(ggplot2)
+library(cowplot)
+```
+
+# Import HoVerNet H5AD Data
+
+Import a HoVerNet H5AD file into a `SpatialExperiment` object.
+The file is automatically cached via `BiocFileCache`:
+
+```{r import}
+hov_file <- paste0(
+    "https://store.cancerdatasci.org/hovernet/h5ad/",
+    "TCGA-23-1021-01Z-00-DX1.F07C221B-D401-47A5-9519-10DE59CA1E9D.h5ad.gz"
+)
+
+hn_spe <- HoverNet(hov_file, outClass = "SpatialExperiment") |>
+    import()
+
+hn_spe
+```
+
+The corresponding tissue thumbnail is also available from the same store:
+
+```{r thumb}
+thumb_path <- paste0(
+    "https://store.cancerdatasci.org/hovernet/thumb/",
+    "TCGA-23-1021-01Z-00-DX1.F07C221B-D401-47A5-9519-10DE59CA1E9D.png"
+)
+```
+
+# Overlaying Segmentation on Tissue Thumbnails
+
+## Basic Overlay
+
+`plotHoverNetH5ADOverlay()` renders nucleus centroids coloured by cell type
+on top of the tissue thumbnail:
+
+```{r overlay-basic}
+plotHoverNetH5ADOverlay(hn_spe, thumb_path)
+```
+
+## Customised Overlay
+
+Point size and legend appearance can be adjusted:
+
+```{r overlay-custom}
+plotHoverNetH5ADOverlay(
+    hn_spe,
+    thumb_path,
+    title             = "Ovarian Cancer Tissue - Cell Segmentation",
+    point_size        = 0.02,
+    legend_point_size = 3
+)
+```
+
+## Custom Colour Palette
+
+Pass a named character vector to override the default cell-type colours:
+
+```{r overlay-colors}
+custom_colors <- c(
+    "no label"          = "#808080",
+    "neoplastic"        = "#E31A1C",
+    "inflammatory"      = "#1F78B4",
+    "stromal"           = "#33A02C",
+    "necrotic"          = "#FF7F00",
+    "benign epithelial" = "#6A3D9A"
+)
+
+plotHoverNetH5ADOverlay(
+    hn_spe,
+    thumb_path,
+    color_palette = custom_colors,
+    title         = "Custom Color Scheme"
+)
+```
+
+# Visualising H5AD Features
+
+H5AD files include additional per-nucleus statistics stored in `colData()`:
+`mean_intensity` and `nearest_neighbor_distance`. Spatial coordinates are
+available via `spatialCoords()` as `x_centroid` and `y_centroid`.
+
+```{r h5ad-features}
+h5ad_coords <- data.frame(spatialCoords(hn_spe), colData(hn_spe))
+
+p1 <- ggplot(h5ad_coords, aes(x = x_centroid, y = y_centroid,
+                               color = mean_intensity)) +
+    geom_point(size = 0.5) +
+    scale_color_viridis_c() +
+    coord_fixed() +
+    theme_minimal() +
+    labs(title = "Mean Intensity", color = "Intensity")
+
+p2 <- ggplot(h5ad_coords, aes(x = x_centroid, y = y_centroid,
+                               color = nearest_neighbor_distance)) +
+    geom_point(size = 0.5) +
+    scale_color_viridis_c(option = "plasma") +
+    coord_fixed() +
+    theme_minimal() +
+    labs(title = "Nearest Neighbor Distance", color = "Distance")
+
+cowplot::plot_grid(p1, p2, ncol = 2)
+```
+
+# Session Information
+
+```{r session-info, eval=TRUE}
+sessioninfo::session_info()
+```
