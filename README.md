@@ -1,37 +1,42 @@
 # imageTCGAWorkflow
 
-<img src="man/figures/logo.png" align="right" width="130" alt="imageTCGAworkflow logo"/>
-
 An end-to-end Bioconductor workflow for histopathology image analysis using TCGA diagnostic whole-slide images.
 
 ## Ecosystem packages
 
 <table>
 <tr>
-<td align="center" width="200">
+<td align="center" width="160" valign="top">
 <a href="https://github.com/billila/imageTCGA">
-<img src="man/figures/imageTCGA-logo.png" width="120" alt="imageTCGA"/><br/>
+<img src="man/figures/imageTCGA-logo.png" width="130" height="150" alt="imageTCGA"/><br/>
 <strong>imageTCGA</strong>
 </a><br/>
 <em>Shiny app for image discovery</em>
 </td>
-<td align="center" width="200">
+<td align="center" width="160" valign="top">
 <a href="https://github.com/waldronlab/imageFeatureTCGA">
-<img src="man/figures/imageFeatureTCGA-logo.png" width="120" alt="imageFeatureTCGA"/><br/>
+<img src="man/figures/imageFeatureTCGA-logo.png" width="130" height="150" alt="imageFeatureTCGA"/><br/>
 <strong>imageFeatureTCGA</strong>
 </a><br/>
 <em>Import HoVerNet & GigaPath features</em>
 </td>
-<td align="center" width="200">
+<td align="center" width="160" valign="top">
 <a href="https://github.com/waldronlab/imageTCGAutils">
-<img src="man/figures/imageTCGAutils-logo.png" width="120" alt="imageTCGAutils"/><br/>
+<img src="man/figures/imageTCGAutils-logo.png" width="130" height="150" alt="imageTCGAutils"/><br/>
 <strong>imageTCGAutils</strong>
 </a><br/>
 <em>Spatial statistics & dimensionality reduction</em>
 </td>
-<td align="center" width="200">
+<td align="center" width="160" valign="top">
+<a href="https://billila.github.io/imageTCGAWorkflow/articles/imageTCGAWorkflow.html">
+<img src="man/figures/logo.png" width="130" height="150" alt="imageTCGAWorkflow"/><br/>
+<strong>imageTCGAWorkflow</strong>
+</a><br/>
+<em>End-to-end workflow</em>
+</td>
+<td align="center" width="160" valign="top">
 <a href="https://github.com/waldronlab/HistoImagePlot">
-<img src="https://raw.githubusercontent.com/waldronlab/HistoImagePlot/main/man/figures/logo.png" width="120" alt="HistoImagePlot"/><br/>
+<img src="man/figures/HistoImagePlot-logo.png" width="130" height="150" alt="HistoImagePlot"/><br/>
 <strong>HistoImagePlot</strong>
 </a><br/>
 <em>Histopathology visualization</em>
