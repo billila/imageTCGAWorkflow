@@ -22,7 +22,7 @@ vignette: >
 knitr::opts_chunk$set(
   collapse  = TRUE,
   comment   = "#>",
-  cache     = TRUE,
+  eval      = FALSE,
   message   = FALSE,
   warning   = FALSE
 )
@@ -302,6 +302,6 @@ HistoImagePlot::plotHistoImage(
 
 # Session Information
 
-```{r session-info}
+```{r session-info, eval=TRUE}
 sessioninfo::session_info()
 ```
