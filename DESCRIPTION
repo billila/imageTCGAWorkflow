@@ -47,5 +47,10 @@ Suggests:
     knitr,
     rmarkdown,
     sessioninfo
+Remotes:
+    billila/imageTCGA,
+    waldronlab/imageFeatureTCGA,
+    waldronlab/imageTCGAutils,
+    waldronlab/HistoImagePlot
 VignetteBuilder: knitr
 RoxygenNote: 7.3.2

@@ -31,18 +31,8 @@ jobs:
 
       - uses: r-lib/actions/setup-r-dependencies@v2
         with:
-          extra-packages: |
-            any::rcmdcheck
-            any::remotes
+          extra-packages: any::rcmdcheck
           needs: check
-
-      - name: Install GitHub-only dependencies
-        run: |
-          remotes::install_github("billila/imageTCGA", upgrade = "never")
-          remotes::install_github("waldronlab/imageFeatureTCGA", upgrade = "never")
-          remotes::install_github("waldronlab/imageTCGAutils", upgrade = "never")
-          remotes::install_github("waldronlab/HistoImagePlot", upgrade = "never")
-        shell: Rscript {0}
 
       - uses: r-lib/actions/check-r-package@v2
         with:
