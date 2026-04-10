@@ -23,7 +23,11 @@ jobs:
           r-version: "release"
           use-public-rspm: true
 
-      - uses: r-lib/actions/setup-bioc@v2
+      - name: Install BiocManager
+        run: |
+          install.packages("BiocManager")
+          BiocManager::install(version = "3.21", ask = FALSE)
+        shell: Rscript {0}
 
       - name: Install system dependencies
         run: |
