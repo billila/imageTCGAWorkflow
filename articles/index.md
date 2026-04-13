@@ -4,6 +4,8 @@
 
 - [Histopathology Image Analysis with TCGA Data: an end-to-end
   workflow](https://billila.github.io/imageTCGAWorkflow/articles/imageTCGAWorkflow.md):
+- [EuroBioC2026 Workshop: Histopathology Image Analysis in
+  R/Bioconductor](https://billila.github.io/imageTCGAWorkflow/articles/workshopEuroBioc2026.md):
 
 ### Data Access
 

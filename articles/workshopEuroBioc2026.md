@@ -1,0 +1,433 @@
+# EuroBioC2026 Workshop: Histopathology Image Analysis in R/Bioconductor
+
+------------------------------------------------------------------------
+
+> **EuroBioC2026** \| June 3–4, 2026 (TBD) \| 90 minutes
+
+------------------------------------------------------------------------
+
+## Workshop Description
+
+Histopathological images provide unparalleled insights into tissue
+architecture, cellular morphology, and tumor spatial organization. While
+these images are routinely used in cancer research and clinical
+practice, their computational analysis typically relies on specialized
+software outside the R/Bioconductor ecosystem.
+
+This workshop introduces the **imageTCGA ecosystem** — a suite of four
+Bioconductor packages that bridges histopathological image analysis with
+multi-omics integration. Using a single ovarian cancer (TCGA-OV)
+whole-slide image as a running example, participants will explore the
+full analysis workflow: from interactive data discovery to spatial
+statistics and multi-modal integration.
+
+We applied a standardized, large-scale image analysis workflow to all
+TCGA diagnostic WSIs (11,765 images, 9,640 cases, 32 cancer types) and
+release the resulting pre-computed features as a ready-to-use resource
+within R/Bioconductor, in compatible data structures:
+`SpatialExperiment`, `SpatialFeatureExperiment`, and
+`MultiAssayExperiment`.
+
+## Instructors
+
+| Name           | Affiliation                                 |
+|----------------|---------------------------------------------|
+| Ilaria Billato | Department of Biology, University of Padova |
+
+## Pre-requisites
+
+**Knowledge:**
+
+- Basic R and Bioconductor familiarity
+- Familiarity with `SummarizedExperiment` or `SpatialExperiment` is
+  helpful but not required
+
+**Software** (install before the workshop):
+
+``` r
+if (!requireNamespace("BiocManager", quietly = TRUE))
+    install.packages("BiocManager")
+
+BiocManager::install(c(
+    "billila/imageTCGA",
+    "waldronlab/imageFeatureTCGA",
+    "waldronlab/imageTCGAutils",
+    "waldronlab/HistoImagePlot",
+    "SpatialExperiment",
+    "BiocFileCache",
+    "dplyr",
+    "ggplot2",
+    "spdep"
+))
+```
+
+## Workshop Participation
+
+Participants will follow along with hands-on R code using pre-computed
+features (no GPU or large downloads required). The workshop uses a
+single ovarian cancer slide (`TCGA-23-1021`) as a running example
+throughout all sections.
+
+Slides will be used to introduce concepts before each hands-on block.
+
+## R/Bioconductor Packages Used
+
+| Package              | Role                                       |
+|----------------------|--------------------------------------------|
+| `imageTCGA`          | Interactive data discovery via Shiny app   |
+| `imageFeatureTCGA`   | Import HoVerNet and Prov-GigaPath features |
+| `imageTCGAutils`     | Spatial statistics (PCA, Moran’s I, LISA)  |
+| `HistoImagePlot`     | Overlay segmentation on tissue thumbnails  |
+| `SpatialExperiment`  | Bioconductor spatial data structure        |
+| `GenomicDataCommons` | Raw WSI download from GDC (demo only)      |
+| `dplyr`              | Data filtering and manipulation            |
+| `ggplot2`            | Visualization                              |
+| `spdep`              | Spatial weights and statistics             |
+
+## Time Outline
+
+| Time      | Topic                                                            | Format           |
+|-----------|------------------------------------------------------------------|------------------|
+| 0–10 min  | Introduction: histopathology + the Bioconductor gap              | Slides           |
+| 10–20 min | Ecosystem overview: the 4 packages and the TCGA resource         | Slides           |
+| 20–30 min | Data discovery with `imageTCGA` (Shiny app)                      | Live demo        |
+| 30–40 min | Raw image download with `GenomicDataCommons`                     | Slides + snippet |
+| 40–55 min | HoVerNet nuclei features: import, explore, visualize             | Hands-on         |
+| 55–70 min | Prov-GigaPath embeddings: tile & slide level, PCA, spatial stats | Hands-on         |
+| 70–80 min | Multi-modal integration with MOFA                                | Demo / Slides    |
+| 80–90 min | Q&A and free exploration                                         | Open             |
+
+## Learning Goals
+
+By the end of this workshop, participants will understand:
+
+1.  What pre-computed histopathology features are available for TCGA and
+    how to access them without GPU or raw image downloads
+2.  How HoVerNet nuclei segmentation and Prov-GigaPath embeddings are
+    structured as Bioconductor objects
+3.  How to perform spatial statistics on tile- and nucleus-level image
+    features
+4.  How image-derived features can be integrated with TCGA molecular
+    data
+
+## Learning Objectives
+
+Participants will be able to:
+
+1.  Use `getCatalog()` to browse the image feature catalogue and filter
+    by cancer type, pipeline, and file format
+2.  Import HoVerNet nuclei data into a `SpatialExperiment` using
+    `HoverNet() |> import()` and explore `colData()` and
+    `spatialCoords()`
+3.  Visualize nuclei segmentation on a tissue thumbnail using
+    `plotHoverNetH5ADOverlay()`
+4.  Import Prov-GigaPath tile- and slide-level embeddings using
+    `ProvGiga() |> import()` and `ProvGigaList() |> import()`
+5.  Run PCA on tile embeddings and compute Moran’s I with `spdep`
+
+------------------------------------------------------------------------
+
+## Part 1 — Introduction (0–10 min)
+
+> **Format:** Slides
+
+Key points to cover:
+
+- Histopathological H&E images as the standard in clinical oncology
+- The computational gap: image analysis tools are mostly outside
+  R/Bioconductor
+- TCGA as a unique resource: 11,765 WSIs across 32 cancer types
+- Our approach: pre-compute once, release as Bioconductor-compatible
+  objects
+
+## Part 2 — Ecosystem Overview (10–20 min)
+
+> **Format:** Slides
+
+The four packages and their roles:
+
+| Package            | Input                  | Output                                                    |
+|--------------------|------------------------|-----------------------------------------------------------|
+| `imageTCGA`        | TCGA metadata          | Shiny explorer + GDC download code                        |
+| `imageFeatureTCGA` | Feature catalogue URLs | `SpatialExperiment`, `SummarizedExperiment`               |
+| `imageTCGAutils`   | SPE / SE objects       | PCA, Moran’s I, Geary’s C, LISA, `matchHoverNetToTiles()` |
+| `HistoImagePlot`   | SPE + thumbnail URL    | Segmentation overlay plots                                |
+
+The TCGA resource:
+
+- **HoVerNet:** 33,177 files (JSON, GeoJSON, H5AD, PNG thumbnails)
+- **Prov-GigaPath:** 21,076 files (tile-level and slide-level CSV)
+
+## Part 3 — Data Discovery with `imageTCGA` (20–30 min)
+
+> **Format:** Live demo (instructor runs the Shiny app)
+
+``` r
+library(imageTCGA)
+imageTCGA()
+```
+
+Show participants how to:
+
+1.  Select **Ovarian Serous Cystadenocarcinoma (TCGA-OV)** in the Shiny
+    app
+2.  Browse slides by patient, filter by metadata
+3.  Identify the example slide: `TCGA-23-1021-01Z-00-DX1`
+4.  Copy the GDC download code generated by the app
+
+## Part 4 — Raw Image Download (30–40 min)
+
+> **Format:** Slides + code snippet (not run during workshop — files are
+> ~1–2 GB)
+
+``` r
+# Example: download the raw WSI from GDC
+# (this is what imageTCGA generates for you)
+library(GenomicDataCommons)
+
+# TBD: add actual GDC query for TCGA-23-1021
+# file_id <- "F07C221B-D401-47A5-9519-10DE59CA1E9D"
+# gdcdata(file_id, destination_dir = "wsi/")
+```
+
+> Raw WSIs are H&E-stained TIFF/SVS files (~1–2 GB each). For the rest
+> of this workshop we use pre-computed features — no download required.
+
+## Part 5 — HoVerNet Nuclei Features (40–55 min)
+
+> **Format:** Hands-on
+
+``` r
+library(imageFeatureTCGA)
+library(HistoImagePlot)
+library(SpatialExperiment)
+library(dplyr)
+library(ggplot2)
+```
+
+### Import
+
+We use the H5AD file for the ovarian cancer example slide, which
+includes additional per-nucleus features (mean intensity,
+nearest-neighbour distance):
+
+``` r
+hov_file <- paste0(
+    "https://store.cancerdatasci.org/hovernet/h5ad/",
+    "TCGA-23-1021-01Z-00-DX1.F07C221B-D401-47A5-9519-10DE59CA1E9D.h5ad.gz"
+)
+
+hn_spe <- HoverNet(hov_file, outClass = "SpatialExperiment") |>
+    import()
+
+hn_spe
+```
+
+Alternatively, import via the catalogue:
+
+``` r
+hn_spe <- getCatalog("hovernet") |>
+    dplyr::filter(
+        tcga_barcode == "TCGA-23-1021-01Z-00-DX1.F07C221B-D401-47A5-9519-10DE59CA1E9D",
+        format == "h5ad"
+    ) |>
+    getFileURLs() |>
+    HoverNet(outClass = "SpatialExperiment") |>
+    import()
+```
+
+### Explore
+
+``` r
+# How many nuclei? What cell types?
+dim(hn_spe)
+table(colData(hn_spe)$label)
+
+# Spatial coordinates
+head(spatialCoords(hn_spe))
+
+# Per-nucleus features (H5AD only)
+head(colData(hn_spe)[, c("mean_intensity", "nearest_neighbor_distance")])
+```
+
+### Visualize
+
+``` r
+thumb_path <- paste0(
+    "https://store.cancerdatasci.org/hovernet/thumb/",
+    "TCGA-23-1021-01Z-00-DX1.F07C221B-D401-47A5-9519-10DE59CA1E9D.png"
+)
+
+plotHoverNetH5ADOverlay(
+    hn_spe,
+    thumb_path,
+    title = "Ovarian Cancer — Cell Segmentation (TCGA-23-1021)"
+)
+```
+
+## Part 6 — Prov-GigaPath Embeddings (55–70 min)
+
+> **Format:** Hands-on
+
+``` r
+library(imageTCGAutils)
+library(spdep)
+```
+
+### Import tile-level embeddings
+
+``` r
+tile_url <- paste0(
+    "https://store.cancerdatasci.org/provgigapath/tile_level/",
+    "TCGA-23-1021-01Z-00-DX1.F07C221B-D401-47A5-9519-10DE59CA1E9D.csv.gz"
+)
+
+pg_tiles <- ProvGiga(tile_url) |> import()
+
+# 211 tiles × 1,543 columns (tile_x, tile_y + 1,536 embedding dims named 0–1535)
+dim(pg_tiles)
+```
+
+### PCA on tile embeddings
+
+``` r
+embedding_cols <- grep("^[0-9]+$", names(pg_tiles), value = TRUE)
+coords <- pg_tiles[, c("tile_x", "tile_y")]
+
+pca_res <- prcomp(pg_tiles[, embedding_cols], scale. = TRUE)
+pca_df <- data.frame(coords, PC1 = pca_res$x[, 1], PC2 = pca_res$x[, 2])
+
+ggplot(pca_df, aes(x = tile_x, y = tile_y, color = PC1)) +
+    geom_point(size = 3) +
+    scale_color_viridis_c() +
+    coord_fixed() +
+    theme_minimal() +
+    labs(title = "Tile PCA — PC1 mapped to spatial position",
+         subtitle = "TCGA-23-1021 (Ovarian Cancer)")
+```
+
+### Spatial autocorrelation (Moran’s I)
+
+``` r
+nb <- knn2nb(knearneigh(as.matrix(coords), k = 6))
+lw <- nb2listw(nb, style = "W")
+
+mi <- moran.test(pca_df$PC1, lw)
+mi
+```
+
+### Import slide-level embeddings for TCGA-OV
+
+``` r
+# Multiple slides → SummarizedExperiment (768 × n slides)
+pgl <- getCatalog("provgigapath") |>
+    dplyr::filter(level == "slide_level", Project.ID == "TCGA-OV") |>
+    dplyr::slice(1:10) |>
+    getFileURLs() |>
+    ProvGigaList() |>
+    import()
+
+pgl
+# class: SummarizedExperiment
+# dim: 768 10
+# assays(1): embeddings
+```
+
+## Part 7 — Multi-Modal Integration (70–80 min)
+
+> **Format:** Demo / Slides — TBD (working code to be added before the
+> workshop)
+
+Planned content:
+
+- Combine Prov-GigaPath slide-level embeddings with TCGA RNA-seq or
+  clinical data for TCGA-OV
+- Run MOFA+ (`MOFA2`) to identify joint factors of variation
+- Visualize latent factors coloured by clinical annotation
+
+``` r
+# TBD: MOFA2 integration example with TCGA-OV
+# library(MOFA2)
+# ...
+```
+
+> See the [Downstream Analyses
+> vignette](https://billila.github.io/imageTCGAWorkflow/articles/downstream-analyses.md)
+> for a more detailed walkthrough.
+
+## Part 8 — Q&A and Free Exploration (80–90 min)
+
+> **Format:** Open
+
+Participants can explore their cancer type of interest:
+
+``` r
+# Browse available cancer types
+getCatalog("hovernet") |>
+    dplyr::count(Project.ID, sort = TRUE)
+
+# Pick a cancer type and repeat the workflow
+getCatalog("provgigapath") |>
+    dplyr::filter(level == "slide_level", Project.ID == "TCGA-BRCA") |>
+    dplyr::slice(1:5) |>
+    getFileURLs() |>
+    ProvGigaList() |>
+    import()
+```
+
+------------------------------------------------------------------------
+
+## Session Information
+
+``` r
+sessioninfo::session_info()
+#> ─ Session info ───────────────────────────────────────────────────────────────
+#>  setting  value
+#>  version  R version 4.5.3 (2026-03-11)
+#>  os       Ubuntu 24.04.4 LTS
+#>  system   x86_64, linux-gnu
+#>  ui       X11
+#>  language en
+#>  collate  C.UTF-8
+#>  ctype    C.UTF-8
+#>  tz       UTC
+#>  date     2026-04-13
+#>  pandoc   3.1.11 @ /opt/hostedtoolcache/pandoc/3.1.11/x64/ (via rmarkdown)
+#>  quarto   NA
+#> 
+#> ─ Packages ───────────────────────────────────────────────────────────────────
+#>  package     * version date (UTC) lib source
+#>  BiocManager   1.30.27 2025-11-14 [1] RSPM (R 4.5.0)
+#>  BiocStyle   * 2.38.0  2025-10-29 [1] Bioconductor 3.22 (R 4.5.3)
+#>  bookdown      0.46    2025-12-05 [1] RSPM (R 4.5.0)
+#>  bslib         0.10.0  2026-01-26 [1] RSPM (R 4.5.0)
+#>  cachem        1.1.0   2024-05-16 [1] RSPM (R 4.5.0)
+#>  cli           3.6.6   2026-04-09 [1] RSPM (R 4.5.0)
+#>  desc          1.4.3   2023-12-10 [1] RSPM (R 4.5.0)
+#>  digest        0.6.39  2025-11-19 [1] RSPM (R 4.5.0)
+#>  evaluate      1.0.5   2025-08-27 [1] RSPM (R 4.5.0)
+#>  fastmap       1.2.0   2024-05-15 [1] RSPM (R 4.5.0)
+#>  fs            2.0.1   2026-03-24 [1] RSPM (R 4.5.0)
+#>  htmltools     0.5.9   2025-12-04 [1] RSPM (R 4.5.0)
+#>  jquerylib     0.1.4   2021-04-26 [1] RSPM (R 4.5.0)
+#>  jsonlite      2.0.0   2025-03-27 [1] RSPM (R 4.5.0)
+#>  knitr         1.51    2025-12-20 [1] RSPM (R 4.5.0)
+#>  lifecycle     1.0.5   2026-01-08 [1] RSPM (R 4.5.0)
+#>  pkgdown       2.2.0   2025-11-06 [1] RSPM (R 4.5.0)
+#>  R6            2.6.1   2025-02-15 [1] RSPM (R 4.5.0)
+#>  ragg          1.5.2   2026-03-23 [1] RSPM (R 4.5.0)
+#>  rlang         1.2.0   2026-04-06 [1] RSPM (R 4.5.0)
+#>  rmarkdown     2.31    2026-03-26 [1] RSPM (R 4.5.0)
+#>  sass          0.4.10  2025-04-11 [1] RSPM (R 4.5.0)
+#>  sessioninfo   1.2.3   2025-02-05 [1] RSPM (R 4.5.0)
+#>  systemfonts   1.3.2   2026-03-05 [1] RSPM (R 4.5.0)
+#>  textshaping   1.0.5   2026-03-06 [1] RSPM (R 4.5.0)
+#>  xfun          0.57    2026-03-20 [1] RSPM (R 4.5.0)
+#>  yaml          2.3.12  2025-12-10 [1] RSPM (R 4.5.0)
+#> 
+#>  [1] /home/runner/work/_temp/Library
+#>  [2] /opt/R/4.5.3/lib/R/library
+#>  * ── Packages attached to the search path.
+#> 
+#> ──────────────────────────────────────────────────────────────────────────────
+```
