@@ -39,6 +39,7 @@ articles:
     navbar: Workflow
     contents:
       - imageTCGAWorkflow
+      - workshopEuroBioc2026
 
   - title: Data Access
     navbar: Data Access
