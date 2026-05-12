@@ -7,6 +7,9 @@ using TCGA diagnostic whole-slide images.
 
 [TABLE]
 
+Click here to explore the shiny app:
+[imageTCGA](https://shiny.sph.cuny.edu/app/imageTCGA/)
+
 ## Overview
 
 The TCGA image database contains ~11,765 diagnostic whole-slide images
@@ -28,6 +31,7 @@ The TCGA image database contains ~11,765 diagnostic whole-slide images
 ## Installation
 
 ``` r
+
 if (!requireNamespace("BiocManager", quietly = TRUE))
     install.packages("BiocManager")
 

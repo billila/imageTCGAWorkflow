@@ -45,6 +45,7 @@ within R/Bioconductor, in compatible data structures:
 **Software** (install before the workshop):
 
 ``` r
+
 if (!requireNamespace("BiocManager", quietly = TRUE))
     install.packages("BiocManager")
 
@@ -86,16 +87,16 @@ Slides will be used to introduce concepts before each hands-on block.
 
 ## Time Outline
 
-| Time      | Topic                                                            | Format           |
-|-----------|------------------------------------------------------------------|------------------|
-| 0–10 min  | Introduction: histopathology + the Bioconductor gap              | Slides           |
-| 10–20 min | Ecosystem overview: the 4 packages and the TCGA resource         | Slides           |
-| 20–30 min | Data discovery with `imageTCGA` (Shiny app)                      | Live demo        |
-| 30–40 min | Raw image download with `GenomicDataCommons`                     | Slides + snippet |
-| 40–55 min | HoVerNet nuclei features: import, explore, visualize             | Hands-on         |
-| 55–70 min | Prov-GigaPath embeddings: tile & slide level, PCA, spatial stats | Hands-on         |
-| 70–80 min | Multi-modal integration with MOFA                                | Demo / Slides    |
-| 80–90 min | Q&A and free exploration                                         | Open             |
+| Time | Topic | Format |
+|----|----|----|
+| 0–10 min | Introduction: histopathology + the Bioconductor gap | Slides |
+| 10–20 min | Ecosystem overview: the 4 packages and the TCGA resource | Slides |
+| 20–30 min | Data discovery with `imageTCGA` (Shiny app) | Live demo |
+| 30–40 min | Raw image download with `GenomicDataCommons` | Slides + snippet |
+| 40–55 min | HoVerNet nuclei features: import, explore, visualize | Hands-on |
+| 55–70 min | Prov-GigaPath embeddings: tile & slide level, PCA, spatial stats | Hands-on |
+| 70–80 min | Multi-modal integration with MOFA | Demo / Slides |
+| 80–90 min | Q&A and free exploration | Open |
 
 ## Learning Goals
 
@@ -146,12 +147,12 @@ Key points to cover:
 
 The four packages and their roles:
 
-| Package            | Input                  | Output                                                    |
-|--------------------|------------------------|-----------------------------------------------------------|
-| `imageTCGA`        | TCGA metadata          | Shiny explorer + GDC download code                        |
-| `imageFeatureTCGA` | Feature catalogue URLs | `SpatialExperiment`, `SummarizedExperiment`               |
-| `imageTCGAutils`   | SPE / SE objects       | PCA, Moran’s I, Geary’s C, LISA, `matchHoverNetToTiles()` |
-| `HistoImagePlot`   | SPE + thumbnail URL    | Segmentation overlay plots                                |
+| Package | Input | Output |
+|----|----|----|
+| `imageTCGA` | TCGA metadata | Shiny explorer + GDC download code |
+| `imageFeatureTCGA` | Feature catalogue URLs | `SpatialExperiment`, `SummarizedExperiment` |
+| `imageTCGAutils` | SPE / SE objects | PCA, Moran’s I, Geary’s C, LISA, `matchHoverNetToTiles()` |
+| `HistoImagePlot` | SPE + thumbnail URL | Segmentation overlay plots |
 
 The TCGA resource:
 
@@ -163,6 +164,7 @@ The TCGA resource:
 > **Format:** Live demo (instructor runs the Shiny app)
 
 ``` r
+
 library(imageTCGA)
 imageTCGA()
 ```
@@ -181,6 +183,7 @@ Show participants how to:
 > ~1–2 GB)
 
 ``` r
+
 # Example: download the raw WSI from GDC
 # (this is what imageTCGA generates for you)
 library(GenomicDataCommons)
@@ -198,6 +201,7 @@ library(GenomicDataCommons)
 > **Format:** Hands-on
 
 ``` r
+
 library(imageFeatureTCGA)
 library(HistoImagePlot)
 library(SpatialExperiment)
@@ -212,6 +216,7 @@ includes additional per-nucleus features (mean intensity,
 nearest-neighbour distance):
 
 ``` r
+
 hov_file <- paste0(
     "https://store.cancerdatasci.org/hovernet/h5ad/",
     "TCGA-23-1021-01Z-00-DX1.F07C221B-D401-47A5-9519-10DE59CA1E9D.h5ad.gz"
@@ -226,6 +231,7 @@ hn_spe
 Alternatively, import via the catalogue:
 
 ``` r
+
 hn_spe <- getCatalog("hovernet") |>
     dplyr::filter(
         tcga_barcode == "TCGA-23-1021-01Z-00-DX1.F07C221B-D401-47A5-9519-10DE59CA1E9D",
@@ -239,6 +245,7 @@ hn_spe <- getCatalog("hovernet") |>
 ### Explore
 
 ``` r
+
 # How many nuclei? What cell types?
 dim(hn_spe)
 table(colData(hn_spe)$label)
@@ -253,6 +260,7 @@ head(colData(hn_spe)[, c("mean_intensity", "nearest_neighbor_distance")])
 ### Visualize
 
 ``` r
+
 thumb_path <- paste0(
     "https://store.cancerdatasci.org/hovernet/thumb/",
     "TCGA-23-1021-01Z-00-DX1.F07C221B-D401-47A5-9519-10DE59CA1E9D.png"
@@ -270,6 +278,7 @@ plotHoverNetH5ADOverlay(
 > **Format:** Hands-on
 
 ``` r
+
 library(imageTCGAutils)
 library(spdep)
 ```
@@ -277,6 +286,7 @@ library(spdep)
 ### Import tile-level embeddings
 
 ``` r
+
 tile_url <- paste0(
     "https://store.cancerdatasci.org/provgigapath/tile_level/",
     "TCGA-23-1021-01Z-00-DX1.F07C221B-D401-47A5-9519-10DE59CA1E9D.csv.gz"
@@ -291,6 +301,7 @@ dim(pg_tiles)
 ### PCA on tile embeddings
 
 ``` r
+
 embedding_cols <- grep("^[0-9]+$", names(pg_tiles), value = TRUE)
 coords <- pg_tiles[, c("tile_x", "tile_y")]
 
@@ -309,6 +320,7 @@ ggplot(pca_df, aes(x = tile_x, y = tile_y, color = PC1)) +
 ### Spatial autocorrelation (Moran’s I)
 
 ``` r
+
 nb <- knn2nb(knearneigh(as.matrix(coords), k = 6))
 lw <- nb2listw(nb, style = "W")
 
@@ -319,6 +331,7 @@ mi
 ### Import slide-level embeddings for TCGA-OV
 
 ``` r
+
 # Multiple slides → SummarizedExperiment (768 × n slides)
 pgl <- getCatalog("provgigapath") |>
     dplyr::filter(level == "slide_level", Project.ID == "TCGA-OV") |>
@@ -346,6 +359,7 @@ Planned content:
 - Visualize latent factors coloured by clinical annotation
 
 ``` r
+
 # TBD: MOFA2 integration example with TCGA-OV
 # library(MOFA2)
 # ...
@@ -362,6 +376,7 @@ Planned content:
 Participants can explore their cancer type of interest:
 
 ``` r
+
 # Browse available cancer types
 getCatalog("hovernet") |>
     dplyr::count(Project.ID, sort = TRUE)
@@ -380,10 +395,11 @@ getCatalog("provgigapath") |>
 ## Session Information
 
 ``` r
+
 sessioninfo::session_info()
 #> ─ Session info ───────────────────────────────────────────────────────────────
 #>  setting  value
-#>  version  R version 4.5.3 (2026-03-11)
+#>  version  R version 4.6.0 (2026-04-24)
 #>  os       Ubuntu 24.04.4 LTS
 #>  system   x86_64, linux-gnu
 #>  ui       X11
@@ -391,42 +407,42 @@ sessioninfo::session_info()
 #>  collate  C.UTF-8
 #>  ctype    C.UTF-8
 #>  tz       UTC
-#>  date     2026-04-13
-#>  pandoc   3.1.11 @ /opt/hostedtoolcache/pandoc/3.1.11/x64/ (via rmarkdown)
+#>  date     2026-05-12
+#>  pandoc   3.8.3 @ /opt/hostedtoolcache/pandoc/3.8.3/x64/ (via rmarkdown)
 #>  quarto   NA
 #> 
 #> ─ Packages ───────────────────────────────────────────────────────────────────
 #>  package     * version date (UTC) lib source
-#>  BiocManager   1.30.27 2025-11-14 [1] RSPM (R 4.5.0)
-#>  BiocStyle   * 2.38.0  2025-10-29 [1] Bioconductor 3.22 (R 4.5.3)
-#>  bookdown      0.46    2025-12-05 [1] RSPM (R 4.5.0)
-#>  bslib         0.10.0  2026-01-26 [1] RSPM (R 4.5.0)
-#>  cachem        1.1.0   2024-05-16 [1] RSPM (R 4.5.0)
-#>  cli           3.6.6   2026-04-09 [1] RSPM (R 4.5.0)
-#>  desc          1.4.3   2023-12-10 [1] RSPM (R 4.5.0)
-#>  digest        0.6.39  2025-11-19 [1] RSPM (R 4.5.0)
-#>  evaluate      1.0.5   2025-08-27 [1] RSPM (R 4.5.0)
-#>  fastmap       1.2.0   2024-05-15 [1] RSPM (R 4.5.0)
-#>  fs            2.0.1   2026-03-24 [1] RSPM (R 4.5.0)
-#>  htmltools     0.5.9   2025-12-04 [1] RSPM (R 4.5.0)
-#>  jquerylib     0.1.4   2021-04-26 [1] RSPM (R 4.5.0)
-#>  jsonlite      2.0.0   2025-03-27 [1] RSPM (R 4.5.0)
-#>  knitr         1.51    2025-12-20 [1] RSPM (R 4.5.0)
-#>  lifecycle     1.0.5   2026-01-08 [1] RSPM (R 4.5.0)
-#>  pkgdown       2.2.0   2025-11-06 [1] RSPM (R 4.5.0)
-#>  R6            2.6.1   2025-02-15 [1] RSPM (R 4.5.0)
-#>  ragg          1.5.2   2026-03-23 [1] RSPM (R 4.5.0)
-#>  rlang         1.2.0   2026-04-06 [1] RSPM (R 4.5.0)
-#>  rmarkdown     2.31    2026-03-26 [1] RSPM (R 4.5.0)
-#>  sass          0.4.10  2025-04-11 [1] RSPM (R 4.5.0)
-#>  sessioninfo   1.2.3   2025-02-05 [1] RSPM (R 4.5.0)
-#>  systemfonts   1.3.2   2026-03-05 [1] RSPM (R 4.5.0)
-#>  textshaping   1.0.5   2026-03-06 [1] RSPM (R 4.5.0)
-#>  xfun          0.57    2026-03-20 [1] RSPM (R 4.5.0)
-#>  yaml          2.3.12  2025-12-10 [1] RSPM (R 4.5.0)
+#>  BiocManager   1.30.27 2025-11-14 [1] RSPM (R 4.6.0)
+#>  BiocStyle   * 2.40.0  2026-04-28 [1] Bioconductor 3.23 (R 4.6.0)
+#>  bookdown      0.46    2025-12-05 [1] RSPM (R 4.6.0)
+#>  bslib         0.10.0  2026-01-26 [1] RSPM (R 4.6.0)
+#>  cachem        1.1.0   2024-05-16 [1] RSPM (R 4.6.0)
+#>  cli           3.6.6   2026-04-09 [1] RSPM (R 4.6.0)
+#>  desc          1.4.3   2023-12-10 [1] RSPM (R 4.6.0)
+#>  digest        0.6.39  2025-11-19 [1] RSPM (R 4.6.0)
+#>  evaluate      1.0.5   2025-08-27 [1] RSPM (R 4.6.0)
+#>  fastmap       1.2.0   2024-05-15 [1] RSPM (R 4.6.0)
+#>  fs            2.1.0   2026-04-18 [1] RSPM (R 4.6.0)
+#>  htmltools     0.5.9   2025-12-04 [1] RSPM (R 4.6.0)
+#>  jquerylib     0.1.4   2021-04-26 [1] RSPM (R 4.6.0)
+#>  jsonlite      2.0.0   2025-03-27 [1] RSPM (R 4.6.0)
+#>  knitr         1.51    2025-12-20 [1] RSPM (R 4.6.0)
+#>  lifecycle     1.0.5   2026-01-08 [1] RSPM (R 4.6.0)
+#>  pkgdown       2.2.0   2025-11-06 [1] RSPM (R 4.6.0)
+#>  R6            2.6.1   2025-02-15 [1] RSPM (R 4.6.0)
+#>  ragg          1.5.2   2026-03-23 [1] RSPM (R 4.6.0)
+#>  rlang         1.2.0   2026-04-06 [1] RSPM (R 4.6.0)
+#>  rmarkdown     2.31    2026-03-26 [1] RSPM (R 4.6.0)
+#>  sass          0.4.10  2025-04-11 [1] RSPM (R 4.6.0)
+#>  sessioninfo   1.2.3   2025-02-05 [1] RSPM (R 4.6.0)
+#>  systemfonts   1.3.2   2026-03-05 [1] RSPM (R 4.6.0)
+#>  textshaping   1.0.5   2026-03-06 [1] RSPM (R 4.6.0)
+#>  xfun          0.57    2026-03-20 [1] RSPM (R 4.6.0)
+#>  yaml          2.3.12  2025-12-10 [1] RSPM (R 4.6.0)
 #> 
 #>  [1] /home/runner/work/_temp/Library
-#>  [2] /opt/R/4.5.3/lib/R/library
+#>  [2] /opt/R/4.6.0/lib/R/library
 #>  * ── Packages attached to the search path.
 #> 
 #> ──────────────────────────────────────────────────────────────────────────────
