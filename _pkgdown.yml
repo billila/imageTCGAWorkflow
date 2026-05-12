@@ -18,8 +18,8 @@ home:
   links:
     - text: hovernethelp (GPU setup)
       href: https://github.com/hpages/hovernethelp
-    - text: Report a bug
-      href: https://github.com/billila/imageTCGAWorkflow/issues
+    # - text: Report a bug
+    #   href: https://github.com/billila/imageTCGAWorkflow/issues
 
 reference: ~
 
