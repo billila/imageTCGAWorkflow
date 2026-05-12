@@ -15,11 +15,6 @@ home:
   description: >
     End-to-end Bioconductor workflow for histopathology image analysis
     using TCGA diagnostic whole-slide images.
-  links:
-    - text: hovernethelp (GPU setup)
-      href: https://github.com/hpages/hovernethelp
-    # - text: Report a bug
-    #   href: https://github.com/billila/imageTCGAWorkflow/issues
 
 reference: ~
 
