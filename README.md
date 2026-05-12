@@ -44,6 +44,8 @@ An end-to-end Bioconductor workflow for histopathology image analysis using TCGA
 </tr>
 </table>
 
+Click here to explore the shiny app: [imageTCGA](https://shiny.sph.cuny.edu/app/imageTCGA/)
+
 ## Overview
 
 The TCGA image database contains ~11,765 diagnostic whole-slide images (WSI) from ~9,640 patients. This workflow covers:
