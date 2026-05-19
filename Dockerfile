@@ -11,7 +11,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
         libudunits2-dev \
         libproj-dev \
         libgeos-dev \
-    && pip3 install tensorflow \
+    && pip3 install --break-system-packages tensorflow \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
