@@ -182,7 +182,7 @@ sessioninfo::session_info()
 #>  collate  C.UTF-8
 #>  ctype    C.UTF-8
 #>  tz       UTC
-#>  date     2026-05-12
+#>  date     2026-05-19
 #>  pandoc   3.8.3 @ /opt/hostedtoolcache/pandoc/3.8.3/x64/ (via rmarkdown)
 #>  quarto   NA
 #> 
@@ -191,7 +191,7 @@ sessioninfo::session_info()
 #>  BiocManager   1.30.27 2025-11-14 [1] RSPM (R 4.6.0)
 #>  BiocStyle   * 2.40.0  2026-04-28 [1] Bioconductor 3.23 (R 4.6.0)
 #>  bookdown      0.46    2025-12-05 [1] RSPM (R 4.6.0)
-#>  bslib         0.10.0  2026-01-26 [1] RSPM (R 4.6.0)
+#>  bslib         0.11.0  2026-05-16 [1] RSPM (R 4.6.0)
 #>  cachem        1.1.0   2024-05-16 [1] RSPM (R 4.6.0)
 #>  cli           3.6.6   2026-04-09 [1] RSPM (R 4.6.0)
 #>  desc          1.4.3   2023-12-10 [1] RSPM (R 4.6.0)
