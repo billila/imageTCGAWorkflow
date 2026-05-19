@@ -66,8 +66,7 @@ jobs:
 
       - name: Install package + pkgdown
         run: |
-          Rscript -e "devtools::install('.', dependencies = TRUE, \
-            repos = BiocManager::repositories())"
+          Rscript -e "devtools::install('.', dependencies = TRUE)"
           Rscript -e "install.packages('pkgdown')"
 
       - name: Build pkgdown site
