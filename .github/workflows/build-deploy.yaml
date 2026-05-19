@@ -33,8 +33,7 @@ jobs:
 
       - name: Install package dependencies
         run: |
-          Rscript -e "devtools::install('.', dependencies = TRUE, \
-            repos = BiocManager::repositories())"
+          Rscript -e "devtools::install('.', dependencies = TRUE)"
 
       - name: R CMD check
         run: |
