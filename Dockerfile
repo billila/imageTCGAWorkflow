@@ -20,7 +20,7 @@ COPY --chown=rstudio:rstudio . /home/rstudio/imageTCGAWorkflow
 
 # Install the package + all Depends/Imports/Suggests from DESCRIPTION
 RUN Rscript -e "devtools::install('imageTCGAWorkflow', dependencies = TRUE, \
-    build_vignettes = TRUE, repos = BiocManager::repositories())"
+    build_vignettes = TRUE)"
 
 EXPOSE 8787
 
