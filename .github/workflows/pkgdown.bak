@@ -1,0 +1,46 @@
+on:
+  push:
+    branches: [main, master]
+  release:
+    types: [published]
+  workflow_dispatch:
+
+name: pkgdown
+
+permissions:
+  contents: write
+  pages: write
+
+jobs:
+  pkgdown:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: r-lib/actions/setup-r@v2
+        with:
+          r-version: "release"
+          use-public-rspm: true
+
+      - uses: r-lib/actions/setup-pandoc@v2
+
+      - name: Install pkgdown and vignette dependencies
+        run: |
+          install.packages(c("pkgdown", "knitr", "rmarkdown", "sessioninfo", "BiocManager"))
+          BiocManager::install("BiocStyle", ask = FALSE)
+        shell: Rscript {0}
+
+      - name: Install this package (no dependencies)
+        run: R CMD INSTALL --no-docs --no-multiarch --no-suggests .
+
+      - name: Build site
+        run: pkgdown::build_site_github_pages(new_process = FALSE, install = FALSE)
+        shell: Rscript {0}
+
+      - name: Deploy to GitHub Pages
+        uses: JamesIves/github-pages-deploy-action@v4
+        with:
+          clean: false
+          branch: gh-pages
+          folder: docs
