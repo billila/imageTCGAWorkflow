@@ -74,6 +74,10 @@ jobs:
           Rscript -e "pkgdown::build_site_github_pages( \
             new_process = FALSE, install = FALSE)"
 
+      - name: Install rsync
+        run: |
+          apt-get update && apt-get install -y rsync
+
       - name: Deploy to GitHub Pages
         if: github.event_name == 'push'
         uses: JamesIves/github-pages-deploy-action@v4
