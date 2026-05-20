@@ -7,8 +7,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <title>Package: imageFeatureTCGA • imageTCGAWorkflow</title>
 <script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-<link href="../deps/bootstrap-5.3.8/bootstrap.min.css" rel="stylesheet">
-<script src="../deps/bootstrap-5.3.8/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
+<link href="../deps/bootstrap-5.3.1/bootstrap.min.css" rel="stylesheet">
+<script src="../deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
 <link href="../deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet">
 <script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="Package: imageFeatureTCGA">
 <style>.pkg-logo { display: none !important; }</style>
@@ -77,7 +77,7 @@
                         <h4 data-toc-skip class="author">Ilaria
 Billato</h4>
             <address class="author_afil">
-      Department of Biology, University of Padova<br><h4 data-toc-skip class="date">2026-05-19</h4>
+      Department of Biology, University of Padova<br><h4 data-toc-skip class="date">2026-05-20</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/billila/imageTCGAWorkflow/blob/main/vignettes/pkg-imageFeatureTCGA.Rmd" class="external-link"><code>vignettes/pkg-imageFeatureTCGA.Rmd</code></a></small>
       <div class="d-none name"><code>pkg-imageFeatureTCGA.Rmd</code></div>
@@ -106,24 +106,24 @@ files</strong>: 33,177 HoVerNet files and 21,076 ProvGigaPath files. All
 files can be imported directly into Bioconductor objects without
 requiring local image files or GPU resources.</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va">imageFeatureTCGA</span><span class="op">)</span></span>
-<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va">SummarizedExperiment</span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/waldronlab/imageFeatureTCGA" class="external-link">imageFeatureTCGA</a></span><span class="op">)</span></span>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://bioconductor.org/packages/SummarizedExperiment" class="external-link">SummarizedExperiment</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://dplyr.tidyverse.org" class="external-link">dplyr</a></span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="data-catalogue">Data Catalogue<a class="anchor" aria-label="anchor" href="#data-catalogue"></a>
 </h2>
-<p>Use <code>getCatalog()</code> to download the full catalogue of
+<p>Use <code><a href="https://rdrr.io/pkg/imageFeatureTCGA/man/getCatalog.html" class="external-link">getCatalog()</a></code> to download the full catalogue of
 available files:</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu">getCatalog</span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/pkg/imageFeatureTCGA/man/getCatalog.html" class="external-link">getCatalog</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
 <p>Filter by pipeline:</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># HoVerNet files (33,177)</span></span>
-<span><span class="fu">getCatalog</span><span class="op">(</span><span class="st">"hovernet"</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/pkg/imageFeatureTCGA/man/getCatalog.html" class="external-link">getCatalog</a></span><span class="op">(</span><span class="st">"hovernet"</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># ProvGigaPath files (21,076)</span></span>
-<span><span class="fu">getCatalog</span><span class="op">(</span><span class="st">"provgigapath"</span><span class="op">)</span></span></code></pre></div>
+<span><span class="fu"><a href="https://rdrr.io/pkg/imageFeatureTCGA/man/getCatalog.html" class="external-link">getCatalog</a></span><span class="op">(</span><span class="st">"provgigapath"</span><span class="op">)</span></span></code></pre></div>
 <p>Key columns in the catalogue: <code>pipeline</code>,
 <code>format</code>, <code>filename</code>, <code>tcga_barcode</code>,
 <code>Case.ID</code>, <code>Project.ID</code>, <code>level</code>,
@@ -141,16 +141,16 @@ and tile-level, distinguished by the <code>level</code> column:
 <code>SpatialExperiment</code> or <code>SpatialFeatureExperiment</code>.
 Columns represent individual nuclei.</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">hspe</span> <span class="op">&lt;-</span> <span class="fu">getCatalog</span><span class="op">(</span><span class="st">"hovernet"</span><span class="op">)</span> <span class="op">|&gt;</span></span>
-<span>    <span class="fu">dplyr</span><span class="fu">::</span><span class="fu">filter</span><span class="op">(</span></span>
+<code class="sourceCode R"><span><span class="va">hspe</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/imageFeatureTCGA/man/getCatalog.html" class="external-link">getCatalog</a></span><span class="op">(</span><span class="st">"hovernet"</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>    <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span></span>
 <span>        <span class="va">filename</span> <span class="op">==</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste</a></span><span class="op">(</span></span>
 <span>            <span class="st">"TCGA-VG-A8LO-01A-01-DX1"</span>,</span>
 <span>            <span class="st">"B39A4D64-82A1-4A04-8AB6-918F3058B83B"</span>,</span>
 <span>            <span class="st">"json"</span>, <span class="st">"gz"</span>, sep <span class="op">=</span> <span class="st">"."</span></span>
 <span>        <span class="op">)</span></span>
 <span>    <span class="op">)</span> <span class="op">|&gt;</span></span>
-<span>    <span class="fu">getFileURLs</span><span class="op">(</span><span class="op">)</span> <span class="op">|&gt;</span></span>
-<span>    <span class="fu">HoverNet</span><span class="op">(</span>outClass <span class="op">=</span> <span class="st">"SpatialExperiment"</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>    <span class="fu"><a href="https://rdrr.io/pkg/imageFeatureTCGA/man/getCatalog.html" class="external-link">getFileURLs</a></span><span class="op">(</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>    <span class="fu"><a href="https://rdrr.io/pkg/imageFeatureTCGA/man/HoverNet.html" class="external-link">HoverNet</a></span><span class="op">(</span>outClass <span class="op">=</span> <span class="st">"SpatialExperiment"</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>    <span class="fu">import</span><span class="op">(</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">hspe</span></span>
@@ -175,7 +175,7 @@ to the slide)</li>
 <code>"necros"</code>)</li>
 </ul>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu">colData</span><span class="op">(</span><span class="va">hspe</span><span class="op">)</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/pkg/SummarizedExperiment/man/SummarizedExperiment-class.html" class="external-link">colData</a></span><span class="op">(</span><span class="va">hspe</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="importing-provgigapath-embeddings">Importing ProvGigaPath Embeddings<a class="anchor" aria-label="anchor" href="#importing-provgigapath-embeddings"></a>
@@ -185,10 +185,10 @@ to the slide)</li>
 </h3>
 <p>Each row is a slide; the embedding vector (768 dimensions, named
 <code>V1</code>…<code>V768</code>) summarises the entire WSI.
-<code>ProvGiga()</code> for a single file returns a tibble.</p>
+<code><a href="https://rdrr.io/pkg/imageFeatureTCGA/man/ProvGiga.html" class="external-link">ProvGiga()</a></code> for a single file returns a tibble.</p>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu">getCatalog</span><span class="op">(</span><span class="st">"provgigapath"</span><span class="op">)</span> <span class="op">|&gt;</span></span>
-<span>    <span class="fu">dplyr</span><span class="fu">::</span><span class="fu">filter</span><span class="op">(</span></span>
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/pkg/imageFeatureTCGA/man/getCatalog.html" class="external-link">getCatalog</a></span><span class="op">(</span><span class="st">"provgigapath"</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>    <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span></span>
 <span>        <span class="va">filename</span> <span class="op">==</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste</a></span><span class="op">(</span></span>
 <span>            <span class="st">"TCGA-VG-A8LO-01A-01-DX1"</span>,</span>
 <span>            <span class="st">"B39A4D64-82A1-4A04-8AB6-918F3058B83B"</span>,</span>
@@ -196,8 +196,8 @@ to the slide)</li>
 <span>        <span class="op">)</span>,</span>
 <span>        <span class="va">level</span> <span class="op">==</span> <span class="st">"slide_level"</span></span>
 <span>    <span class="op">)</span> <span class="op">|&gt;</span></span>
-<span>    <span class="fu">getFileURLs</span><span class="op">(</span><span class="op">)</span> <span class="op">|&gt;</span></span>
-<span>    <span class="fu">ProvGiga</span><span class="op">(</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>    <span class="fu"><a href="https://rdrr.io/pkg/imageFeatureTCGA/man/getCatalog.html" class="external-link">getFileURLs</a></span><span class="op">(</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>    <span class="fu"><a href="https://rdrr.io/pkg/imageFeatureTCGA/man/ProvGiga.html" class="external-link">ProvGiga</a></span><span class="op">(</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>    <span class="fu">import</span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="co">#&gt; # A tibble: 1 × 771</span></span>
 <span><span class="co">#&gt;   slideName  tumorType fileName     V1     V2     V3  ...</span></span>
@@ -212,8 +212,8 @@ to the slide)</li>
 <code>tile_y</code>, and 1,536 embedding dimensions
 (<code>0</code>…<code>1535</code>).</p>
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu">getCatalog</span><span class="op">(</span><span class="st">"provgigapath"</span><span class="op">)</span> <span class="op">|&gt;</span></span>
-<span>    <span class="fu">dplyr</span><span class="fu">::</span><span class="fu">filter</span><span class="op">(</span></span>
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/pkg/imageFeatureTCGA/man/getCatalog.html" class="external-link">getCatalog</a></span><span class="op">(</span><span class="st">"provgigapath"</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>    <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span></span>
 <span>        <span class="va">filename</span> <span class="op">==</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste</a></span><span class="op">(</span></span>
 <span>            <span class="st">"TCGA-VG-A8LO-01A-01-DX1"</span>,</span>
 <span>            <span class="st">"B39A4D64-82A1-4A04-8AB6-918F3058B83B"</span>,</span>
@@ -221,8 +221,8 @@ to the slide)</li>
 <span>        <span class="op">)</span>,</span>
 <span>        <span class="va">level</span> <span class="op">==</span> <span class="st">"tile_level"</span></span>
 <span>    <span class="op">)</span> <span class="op">|&gt;</span></span>
-<span>    <span class="fu">getFileURLs</span><span class="op">(</span><span class="op">)</span> <span class="op">|&gt;</span></span>
-<span>    <span class="fu">ProvGiga</span><span class="op">(</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>    <span class="fu"><a href="https://rdrr.io/pkg/imageFeatureTCGA/man/getCatalog.html" class="external-link">getFileURLs</a></span><span class="op">(</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>    <span class="fu"><a href="https://rdrr.io/pkg/imageFeatureTCGA/man/ProvGiga.html" class="external-link">ProvGiga</a></span><span class="op">(</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>    <span class="fu">import</span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="co">#&gt; # A tibble: 211 × 1,543</span></span>
 <span><span class="co">#&gt;   slide_name  tile_id tile_name tile_x tile_y    `0`    `1`  ...</span></span>
@@ -234,17 +234,17 @@ to the slide)</li>
 <div class="section level2">
 <h2 id="importing-multiple-files">Importing Multiple Files<a class="anchor" aria-label="anchor" href="#importing-multiple-files"></a>
 </h2>
-<p><code>ProvGigaList()</code> accepts multiple files at once. When all
+<p><code><a href="https://rdrr.io/pkg/imageFeatureTCGA/man/ProvGigaList.html" class="external-link">ProvGigaList()</a></code> accepts multiple files at once. When all
 files are the same level, <code>import()</code> returns a single
 <code>SummarizedExperiment</code>; for mixed levels it returns a named
 list.</p>
 <div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Three slide-level files for TCGA-GBM → single SummarizedExperiment (768 × 3)</span></span>
-<span><span class="va">pgl</span> <span class="op">&lt;-</span> <span class="fu">getCatalog</span><span class="op">(</span><span class="st">"provgigapath"</span><span class="op">)</span> <span class="op">|&gt;</span></span>
-<span>    <span class="fu">dplyr</span><span class="fu">::</span><span class="fu">filter</span><span class="op">(</span><span class="va">level</span> <span class="op">==</span> <span class="st">"slide_level"</span>, <span class="va">Project.ID</span> <span class="op">==</span> <span class="st">"TCGA-GBM"</span><span class="op">)</span> <span class="op">|&gt;</span></span>
-<span>    <span class="fu">dplyr</span><span class="fu">::</span><span class="fu">slice</span><span class="op">(</span><span class="fl">1</span><span class="op">:</span><span class="fl">3</span><span class="op">)</span> <span class="op">|&gt;</span></span>
-<span>    <span class="fu">getFileURLs</span><span class="op">(</span><span class="op">)</span> <span class="op">|&gt;</span></span>
-<span>    <span class="fu">ProvGigaList</span><span class="op">(</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span><span class="va">pgl</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/imageFeatureTCGA/man/getCatalog.html" class="external-link">getCatalog</a></span><span class="op">(</span><span class="st">"provgigapath"</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>    <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">level</span> <span class="op">==</span> <span class="st">"slide_level"</span>, <span class="va">Project.ID</span> <span class="op">==</span> <span class="st">"TCGA-GBM"</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>    <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/slice.html" class="external-link">slice</a></span><span class="op">(</span><span class="fl">1</span><span class="op">:</span><span class="fl">3</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>    <span class="fu"><a href="https://rdrr.io/pkg/imageFeatureTCGA/man/getCatalog.html" class="external-link">getFileURLs</a></span><span class="op">(</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>    <span class="fu"><a href="https://rdrr.io/pkg/imageFeatureTCGA/man/ProvGigaList.html" class="external-link">ProvGigaList</a></span><span class="op">(</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>    <span class="fu">import</span><span class="op">(</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">pgl</span></span>
@@ -255,8 +255,8 @@ list.</p>
 <span><span class="co">#&gt; colnames(3): TCGA-02-0001-01Z-00-DX1 TCGA-02-0001-01Z-00-DX2 TCGA-02-0001-01Z-00-DX3</span></span></code></pre></div>
 <div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Both levels for the same slide → list with $slide_level and $tile_level</span></span>
-<span><span class="va">pgl_mixed</span> <span class="op">&lt;-</span> <span class="fu">getCatalog</span><span class="op">(</span><span class="st">"provgigapath"</span><span class="op">)</span> <span class="op">|&gt;</span></span>
-<span>    <span class="fu">dplyr</span><span class="fu">::</span><span class="fu">filter</span><span class="op">(</span></span>
+<span><span class="va">pgl_mixed</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/imageFeatureTCGA/man/getCatalog.html" class="external-link">getCatalog</a></span><span class="op">(</span><span class="st">"provgigapath"</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>    <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span></span>
 <span>        <span class="va">filename</span> <span class="op">==</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste</a></span><span class="op">(</span></span>
 <span>            <span class="st">"TCGA-VG-A8LO-01A-01-DX1"</span>,</span>
 <span>            <span class="st">"B39A4D64-82A1-4A04-8AB6-918F3058B83B"</span>,</span>
@@ -264,8 +264,8 @@ list.</p>
 <span>        <span class="op">)</span>,</span>
 <span>        <span class="va">level</span> <span class="op"><a href="https://rdrr.io/r/base/match.html" class="external-link">%in%</a></span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"slide_level"</span>, <span class="st">"tile_level"</span><span class="op">)</span></span>
 <span>    <span class="op">)</span> <span class="op">|&gt;</span></span>
-<span>    <span class="fu">getFileURLs</span><span class="op">(</span><span class="op">)</span> <span class="op">|&gt;</span></span>
-<span>    <span class="fu">ProvGigaList</span><span class="op">(</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>    <span class="fu"><a href="https://rdrr.io/pkg/imageFeatureTCGA/man/getCatalog.html" class="external-link">getFileURLs</a></span><span class="op">(</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>    <span class="fu"><a href="https://rdrr.io/pkg/imageFeatureTCGA/man/ProvGigaList.html" class="external-link">ProvGigaList</a></span><span class="op">(</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>    <span class="fu">import</span><span class="op">(</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">pgl_mixed</span><span class="op">$</span><span class="va">slide_level</span></span>
@@ -292,19 +292,19 @@ list.</p>
 <span><span class="co">#&gt;  system   x86_64, linux-gnu</span></span>
 <span><span class="co">#&gt;  ui       X11</span></span>
 <span><span class="co">#&gt;  language en</span></span>
-<span><span class="co">#&gt;  collate  C.UTF-8</span></span>
-<span><span class="co">#&gt;  ctype    C.UTF-8</span></span>
-<span><span class="co">#&gt;  tz       UTC</span></span>
-<span><span class="co">#&gt;  date     2026-05-19</span></span>
-<span><span class="co">#&gt;  pandoc   3.8.3 @ /opt/hostedtoolcache/pandoc/3.8.3/x64/ (via rmarkdown)</span></span>
-<span><span class="co">#&gt;  quarto   NA</span></span>
+<span><span class="co">#&gt;  collate  en_US.UTF-8</span></span>
+<span><span class="co">#&gt;  ctype    en_US.UTF-8</span></span>
+<span><span class="co">#&gt;  tz       Etc/UTC</span></span>
+<span><span class="co">#&gt;  date     2026-05-20</span></span>
+<span><span class="co">#&gt;  pandoc   3.9.0.2 @ /usr/bin/ (via rmarkdown)</span></span>
+<span><span class="co">#&gt;  quarto   1.9.36 @ /usr/local/bin/quarto</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB; font-weight: bold;">─ Packages ───────────────────────────────────────────────────────────────────</span></span></span>
 <span><span class="co">#&gt;  <span style="color: #555555; font-style: italic;">package    </span> <span style="color: #555555; font-style: italic;">*</span> <span style="color: #555555; font-style: italic;">version</span> <span style="color: #555555; font-style: italic;">date (UTC)</span> <span style="color: #555555; font-style: italic;">lib</span> <span style="color: #555555; font-style: italic;">source</span></span></span>
-<span><span class="co">#&gt;  BiocManager   1.30.27 <span style="color: #555555;">2025-11-14</span> <span style="color: #555555;">[1]</span> <span style="color: #BB00BB; font-weight: bold;">RSPM (R 4.6.0)</span></span></span>
-<span><span class="co">#&gt;  BiocStyle   * 2.40.0  <span style="color: #555555;">2026-04-28</span> <span style="color: #555555;">[1]</span> <span style="color: #555555;">Bioconductor 3.23 (R 4.6.0)</span></span></span>
-<span><span class="co">#&gt;  bookdown      0.46    <span style="color: #555555;">2025-12-05</span> <span style="color: #555555;">[1]</span> <span style="color: #BB00BB; font-weight: bold;">RSPM (R 4.6.0)</span></span></span>
-<span><span class="co">#&gt;  bslib         0.11.0  <span style="color: #555555;">2026-05-16</span> <span style="color: #555555;">[1]</span> <span style="color: #BB00BB; font-weight: bold;">RSPM (R 4.6.0)</span></span></span>
+<span><span class="co">#&gt;  BiocManager   1.30.27 <span style="color: #555555;">2025-11-14</span> <span style="color: #555555;">[1]</span> <span style="color: #555555;">CRAN (R 4.6.0)</span></span></span>
+<span><span class="co">#&gt;  BiocStyle   * 2.40.0  <span style="color: #555555;">2026-04-28</span> <span style="color: #555555;">[1]</span> <span style="color: #BB00BB; font-weight: bold;">Bioconduc~</span></span></span>
+<span><span class="co">#&gt;  bookdown      0.46    <span style="color: #555555;">2025-12-05</span> <span style="color: #555555;">[1]</span> <span style="color: #BB00BB; font-weight: bold;">RSPM</span></span></span>
+<span><span class="co">#&gt;  bslib         0.10.0  <span style="color: #555555;">2026-01-26</span> <span style="color: #555555;">[1]</span> <span style="color: #BB00BB; font-weight: bold;">RSPM (R 4.6.0)</span></span></span>
 <span><span class="co">#&gt;  cachem        1.1.0   <span style="color: #555555;">2024-05-16</span> <span style="color: #555555;">[1]</span> <span style="color: #BB00BB; font-weight: bold;">RSPM (R 4.6.0)</span></span></span>
 <span><span class="co">#&gt;  cli           3.6.6   <span style="color: #555555;">2026-04-09</span> <span style="color: #555555;">[1]</span> <span style="color: #BB00BB; font-weight: bold;">RSPM (R 4.6.0)</span></span></span>
 <span><span class="co">#&gt;  desc          1.4.3   <span style="color: #555555;">2023-12-10</span> <span style="color: #555555;">[1]</span> <span style="color: #BB00BB; font-weight: bold;">RSPM (R 4.6.0)</span></span></span>
@@ -313,10 +313,12 @@ list.</p>
 <span><span class="co">#&gt;  fastmap       1.2.0   <span style="color: #555555;">2024-05-15</span> <span style="color: #555555;">[1]</span> <span style="color: #BB00BB; font-weight: bold;">RSPM (R 4.6.0)</span></span></span>
 <span><span class="co">#&gt;  fs            2.1.0   <span style="color: #555555;">2026-04-18</span> <span style="color: #555555;">[1]</span> <span style="color: #BB00BB; font-weight: bold;">RSPM (R 4.6.0)</span></span></span>
 <span><span class="co">#&gt;  htmltools     0.5.9   <span style="color: #555555;">2025-12-04</span> <span style="color: #555555;">[1]</span> <span style="color: #BB00BB; font-weight: bold;">RSPM (R 4.6.0)</span></span></span>
+<span><span class="co">#&gt;  htmlwidgets   1.6.4   <span style="color: #555555;">2023-12-06</span> <span style="color: #555555;">[1]</span> <span style="color: #BB00BB; font-weight: bold;">RSPM (R 4.6.0)</span></span></span>
 <span><span class="co">#&gt;  jquerylib     0.1.4   <span style="color: #555555;">2021-04-26</span> <span style="color: #555555;">[1]</span> <span style="color: #BB00BB; font-weight: bold;">RSPM (R 4.6.0)</span></span></span>
 <span><span class="co">#&gt;  jsonlite      2.0.0   <span style="color: #555555;">2025-03-27</span> <span style="color: #555555;">[1]</span> <span style="color: #BB00BB; font-weight: bold;">RSPM (R 4.6.0)</span></span></span>
 <span><span class="co">#&gt;  knitr         1.51    <span style="color: #555555;">2025-12-20</span> <span style="color: #555555;">[1]</span> <span style="color: #BB00BB; font-weight: bold;">RSPM (R 4.6.0)</span></span></span>
 <span><span class="co">#&gt;  lifecycle     1.0.5   <span style="color: #555555;">2026-01-08</span> <span style="color: #555555;">[1]</span> <span style="color: #BB00BB; font-weight: bold;">RSPM (R 4.6.0)</span></span></span>
+<span><span class="co">#&gt;  otel          0.2.0   <span style="color: #555555;">2025-08-29</span> <span style="color: #555555;">[1]</span> <span style="color: #BB00BB; font-weight: bold;">RSPM (R 4.6.0)</span></span></span>
 <span><span class="co">#&gt;  pkgdown       2.2.0   <span style="color: #555555;">2025-11-06</span> <span style="color: #555555;">[1]</span> <span style="color: #BB00BB; font-weight: bold;">RSPM (R 4.6.0)</span></span></span>
 <span><span class="co">#&gt;  R6            2.6.1   <span style="color: #555555;">2025-02-15</span> <span style="color: #555555;">[1]</span> <span style="color: #BB00BB; font-weight: bold;">RSPM (R 4.6.0)</span></span></span>
 <span><span class="co">#&gt;  ragg          1.5.2   <span style="color: #555555;">2026-03-23</span> <span style="color: #555555;">[1]</span> <span style="color: #BB00BB; font-weight: bold;">RSPM (R 4.6.0)</span></span></span>
@@ -329,8 +331,8 @@ list.</p>
 <span><span class="co">#&gt;  xfun          0.57    <span style="color: #555555;">2026-03-20</span> <span style="color: #555555;">[1]</span> <span style="color: #BB00BB; font-weight: bold;">RSPM (R 4.6.0)</span></span></span>
 <span><span class="co">#&gt;  yaml          2.3.12  <span style="color: #555555;">2025-12-10</span> <span style="color: #555555;">[1]</span> <span style="color: #BB00BB; font-weight: bold;">RSPM (R 4.6.0)</span></span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; <span style="color: #555555;"> [1] /home/runner/work/_temp/Library</span></span></span>
-<span><span class="co">#&gt; <span style="color: #555555;"> [2] /opt/R/4.6.0/lib/R/library</span></span></span>
+<span><span class="co">#&gt; <span style="color: #555555;"> [1] /usr/local/lib/R/site-library</span></span></span>
+<span><span class="co">#&gt; <span style="color: #555555;"> [2] /usr/local/lib/R/library</span></span></span>
 <span><span class="co">#&gt;  <span style="color: #BBBBBB; background-color: #BB0000;">*</span> ── Packages attached to the search path.</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB; font-weight: bold;">──────────────────────────────────────────────────────────────────────────────</span></span></span></code></pre></div>

@@ -3,7 +3,7 @@
 ## Authors
 
 - **Ilaria Billato**. Author, maintainer.
-  [](https://orcid.org/0000-0002-3335-3254)  
+  [](https://orcid.org/0000-0002-3335-3254)\
   Department of Biology, University of Padova
 
 ## Citation

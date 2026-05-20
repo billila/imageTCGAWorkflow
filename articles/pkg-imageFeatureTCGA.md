@@ -25,7 +25,9 @@ library(dplyr)
 
 ## Data Catalogue
 
-Use `getCatalog()` to download the full catalogue of available files:
+Use
+[`getCatalog()`](https://rdrr.io/pkg/imageFeatureTCGA/man/getCatalog.html)
+to download the full catalogue of available files:
 
 ``` r
 
@@ -97,8 +99,9 @@ colData(hspe)
 ### Slide-level embeddings
 
 Each row is a slide; the embedding vector (768 dimensions, named
-`V1`…`V768`) summarises the entire WSI. `ProvGiga()` for a single file
-returns a tibble.
+`V1`…`V768`) summarises the entire WSI.
+[`ProvGiga()`](https://rdrr.io/pkg/imageFeatureTCGA/man/ProvGiga.html)
+for a single file returns a tibble.
 
 ``` r
 
@@ -149,9 +152,10 @@ getCatalog("provgigapath") |>
 
 ## Importing Multiple Files
 
-`ProvGigaList()` accepts multiple files at once. When all files are the
-same level, `import()` returns a single `SummarizedExperiment`; for
-mixed levels it returns a named list.
+[`ProvGigaList()`](https://rdrr.io/pkg/imageFeatureTCGA/man/ProvGigaList.html)
+accepts multiple files at once. When all files are the same level,
+`import()` returns a single `SummarizedExperiment`; for mixed levels it
+returns a named list.
 
 ``` r
 
@@ -212,19 +216,19 @@ sessioninfo::session_info()
 #>  system   x86_64, linux-gnu
 #>  ui       X11
 #>  language en
-#>  collate  C.UTF-8
-#>  ctype    C.UTF-8
-#>  tz       UTC
-#>  date     2026-05-19
-#>  pandoc   3.8.3 @ /opt/hostedtoolcache/pandoc/3.8.3/x64/ (via rmarkdown)
-#>  quarto   NA
+#>  collate  en_US.UTF-8
+#>  ctype    en_US.UTF-8
+#>  tz       Etc/UTC
+#>  date     2026-05-20
+#>  pandoc   3.9.0.2 @ /usr/bin/ (via rmarkdown)
+#>  quarto   1.9.36 @ /usr/local/bin/quarto
 #> 
 #> ─ Packages ───────────────────────────────────────────────────────────────────
 #>  package     * version date (UTC) lib source
-#>  BiocManager   1.30.27 2025-11-14 [1] RSPM (R 4.6.0)
-#>  BiocStyle   * 2.40.0  2026-04-28 [1] Bioconductor 3.23 (R 4.6.0)
-#>  bookdown      0.46    2025-12-05 [1] RSPM (R 4.6.0)
-#>  bslib         0.11.0  2026-05-16 [1] RSPM (R 4.6.0)
+#>  BiocManager   1.30.27 2025-11-14 [1] CRAN (R 4.6.0)
+#>  BiocStyle   * 2.40.0  2026-04-28 [1] Bioconduc~
+#>  bookdown      0.46    2025-12-05 [1] RSPM
+#>  bslib         0.10.0  2026-01-26 [1] RSPM (R 4.6.0)
 #>  cachem        1.1.0   2024-05-16 [1] RSPM (R 4.6.0)
 #>  cli           3.6.6   2026-04-09 [1] RSPM (R 4.6.0)
 #>  desc          1.4.3   2023-12-10 [1] RSPM (R 4.6.0)
@@ -233,10 +237,12 @@ sessioninfo::session_info()
 #>  fastmap       1.2.0   2024-05-15 [1] RSPM (R 4.6.0)
 #>  fs            2.1.0   2026-04-18 [1] RSPM (R 4.6.0)
 #>  htmltools     0.5.9   2025-12-04 [1] RSPM (R 4.6.0)
+#>  htmlwidgets   1.6.4   2023-12-06 [1] RSPM (R 4.6.0)
 #>  jquerylib     0.1.4   2021-04-26 [1] RSPM (R 4.6.0)
 #>  jsonlite      2.0.0   2025-03-27 [1] RSPM (R 4.6.0)
 #>  knitr         1.51    2025-12-20 [1] RSPM (R 4.6.0)
 #>  lifecycle     1.0.5   2026-01-08 [1] RSPM (R 4.6.0)
+#>  otel          0.2.0   2025-08-29 [1] RSPM (R 4.6.0)
 #>  pkgdown       2.2.0   2025-11-06 [1] RSPM (R 4.6.0)
 #>  R6            2.6.1   2025-02-15 [1] RSPM (R 4.6.0)
 #>  ragg          1.5.2   2026-03-23 [1] RSPM (R 4.6.0)
@@ -249,8 +255,8 @@ sessioninfo::session_info()
 #>  xfun          0.57    2026-03-20 [1] RSPM (R 4.6.0)
 #>  yaml          2.3.12  2025-12-10 [1] RSPM (R 4.6.0)
 #> 
-#>  [1] /home/runner/work/_temp/Library
-#>  [2] /opt/R/4.6.0/lib/R/library
+#>  [1] /usr/local/lib/R/site-library
+#>  [2] /usr/local/lib/R/library
 #>  * ── Packages attached to the search path.
 #> 
 #> ──────────────────────────────────────────────────────────────────────────────

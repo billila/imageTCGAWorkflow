@@ -7,8 +7,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <title>Downloading TCGA Diagnostic Images • imageTCGAWorkflow</title>
 <script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-<link href="../deps/bootstrap-5.3.8/bootstrap.min.css" rel="stylesheet">
-<script src="../deps/bootstrap-5.3.8/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
+<link href="../deps/bootstrap-5.3.1/bootstrap.min.css" rel="stylesheet">
+<script src="../deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
 <link href="../deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet">
 <script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="Downloading TCGA Diagnostic Images">
 <style>.pkg-logo { display: none !important; }</style>
@@ -77,7 +77,7 @@
                         <h4 data-toc-skip class="author">Ilaria
 Billato</h4>
             <address class="author_afil">
-      Department of Biology, University of Padova<br><h4 data-toc-skip class="date">2026-05-19</h4>
+      Department of Biology, University of Padova<br><h4 data-toc-skip class="date">2026-05-20</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/billila/imageTCGAWorkflow/blob/main/vignettes/download-tcga-images.Rmd" class="external-link"><code>vignettes/download-tcga-images.Rmd</code></a></small>
       <div class="d-none name"><code>download-tcga-images.Rmd</code></div>
@@ -113,7 +113,7 @@ the full TCGA image catalogue. It is the recommended starting point for
 exploratory data selection.</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span></span>
-<span><span class="fu">imageTCGA</span><span class="fu">::</span><span class="fu">imageTCGA</span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
+<span><span class="fu">imageTCGA</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/imageTCGA/man/imageTCGA.html" class="external-link">imageTCGA</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
 <div class="section level3">
 <h3 id="app-features">App features<a class="anchor" aria-label="anchor" href="#app-features"></a>
 </h3>
@@ -146,7 +146,7 @@ direct programmatic access to the GDC REST API.</p>
 </h3>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu">BiocManager</span><span class="fu">::</span><span class="fu"><a href="https://bioconductor.github.io/BiocManager/reference/install.html" class="external-link">install</a></span><span class="op">(</span><span class="st">"GenomicDataCommons"</span><span class="op">)</span></span>
-<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va">GenomicDataCommons</span><span class="op">)</span></span></code></pre></div>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://bioconductor.org/packages/GenomicDataCommons" class="external-link">GenomicDataCommons</a></span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level3">
 <h3 id="query-the-image-catalogue">Query the image catalogue<a class="anchor" aria-label="anchor" href="#query-the-image-catalogue"></a>
@@ -156,15 +156,15 @@ direct programmatic access to the GDC REST API.</p>
 <span><span class="co"># gdc_token() # not required for diagnostic slides</span></span>
 <span></span>
 <span><span class="co"># Build a query for diagnostic slides from ovarian cancer</span></span>
-<span><span class="va">q</span> <span class="op">&lt;-</span> <span class="fu">files</span><span class="op">(</span><span class="op">)</span> <span class="op">|&gt;</span></span>
-<span>    <span class="fu">GenomicDataCommons</span><span class="fu">::</span><span class="fu">filter</span><span class="op">(</span></span>
+<span><span class="va">q</span> <span class="op">&lt;-</span> <span class="fu"><a href="http://bioconductor.github.io/GenomicDataCommons/reference/query.html" class="external-link">files</a></span><span class="op">(</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>    <span class="fu">GenomicDataCommons</span><span class="fu">::</span><span class="fu"><a href="http://bioconductor.github.io/GenomicDataCommons/reference/filtering.html" class="external-link">filter</a></span><span class="op">(</span></span>
 <span>        <span class="op">~</span> <span class="va">cases.project.project_id</span> <span class="op">==</span> <span class="st">"TCGA-OV"</span> <span class="op">&amp;</span></span>
 <span>          <span class="va">data_type</span>             <span class="op">==</span> <span class="st">"Slide Image"</span> <span class="op">&amp;</span></span>
 <span>          <span class="va">experimental_strategy</span> <span class="op">==</span> <span class="st">"Diagnostic Slide"</span></span>
 <span>    <span class="op">)</span></span>
 <span></span>
 <span><span class="co"># Preview results</span></span>
-<span><span class="va">res</span> <span class="op">&lt;-</span> <span class="fu">results</span><span class="op">(</span><span class="va">q</span>, size <span class="op">=</span> <span class="fl">10</span><span class="op">)</span></span>
+<span><span class="va">res</span> <span class="op">&lt;-</span> <span class="fu"><a href="http://bioconductor.github.io/GenomicDataCommons/reference/results.html" class="external-link">results</a></span><span class="op">(</span><span class="va">q</span>, size <span class="op">=</span> <span class="fl">10</span><span class="op">)</span></span>
 <span><span class="va">res</span><span class="op">[</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"file_id"</span>, <span class="st">"file_name"</span>, <span class="st">"file_size"</span><span class="op">)</span><span class="op">]</span></span></code></pre></div>
 </div>
 <div class="section level3">
@@ -172,8 +172,8 @@ direct programmatic access to the GDC REST API.</p>
 </h3>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Add clinical filters: stage IV, high-grade serous</span></span>
-<span><span class="va">q_filtered</span> <span class="op">&lt;-</span> <span class="fu">files</span><span class="op">(</span><span class="op">)</span> <span class="op">|&gt;</span></span>
-<span>    <span class="fu">GenomicDataCommons</span><span class="fu">::</span><span class="fu">filter</span><span class="op">(</span></span>
+<span><span class="va">q_filtered</span> <span class="op">&lt;-</span> <span class="fu"><a href="http://bioconductor.github.io/GenomicDataCommons/reference/query.html" class="external-link">files</a></span><span class="op">(</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>    <span class="fu">GenomicDataCommons</span><span class="fu">::</span><span class="fu"><a href="http://bioconductor.github.io/GenomicDataCommons/reference/filtering.html" class="external-link">filter</a></span><span class="op">(</span></span>
 <span>        <span class="op">~</span> <span class="va">cases.project.project_id</span>               <span class="op">==</span> <span class="st">"TCGA-OV"</span> <span class="op">&amp;</span></span>
 <span>          <span class="va">data_type</span>                              <span class="op">==</span> <span class="st">"Slide Image"</span> <span class="op">&amp;</span></span>
 <span>          <span class="va">experimental_strategy</span>                  <span class="op">==</span> <span class="st">"Diagnostic Slide"</span> <span class="op">&amp;</span></span>
@@ -181,7 +181,7 @@ direct programmatic access to the GDC REST API.</p>
 <span>          <span class="va">cases.diagnoses.morphology</span>             <span class="op">==</span> <span class="st">"8441/3"</span>   <span class="co"># serous cystadenocarcinoma</span></span>
 <span>    <span class="op">)</span></span>
 <span></span>
-<span><span class="va">res_filtered</span> <span class="op">&lt;-</span> <span class="fu">results</span><span class="op">(</span><span class="va">q_filtered</span>, size <span class="op">=</span> <span class="fl">100</span><span class="op">)</span></span>
+<span><span class="va">res_filtered</span> <span class="op">&lt;-</span> <span class="fu"><a href="http://bioconductor.github.io/GenomicDataCommons/reference/results.html" class="external-link">results</a></span><span class="op">(</span><span class="va">q_filtered</span>, size <span class="op">=</span> <span class="fl">100</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">nrow</a></span><span class="op">(</span><span class="va">res_filtered</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level3">
@@ -189,16 +189,16 @@ direct programmatic access to the GDC REST API.</p>
 </h3>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># See all filterable fields for files</span></span>
-<span><span class="fu">available_fields</span><span class="op">(</span><span class="st">"files"</span><span class="op">)</span> <span class="op">|&gt;</span> <span class="fu"><a href="https://rdrr.io/r/base/grep.html" class="external-link">grep</a></span><span class="op">(</span><span class="st">"cases"</span>, x <span class="op">=</span> <span class="va">_</span>, value <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span> <span class="op">|&gt;</span> <span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="fl">20</span><span class="op">)</span></span></code></pre></div>
+<span><span class="fu"><a href="http://bioconductor.github.io/GenomicDataCommons/reference/available_fields.html" class="external-link">available_fields</a></span><span class="op">(</span><span class="st">"files"</span><span class="op">)</span> <span class="op">|&gt;</span> <span class="fu"><a href="https://rdrr.io/r/base/grep.html" class="external-link">grep</a></span><span class="op">(</span><span class="st">"cases"</span>, x <span class="op">=</span> <span class="va">_</span>, value <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span> <span class="op">|&gt;</span> <span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="fl">20</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level3">
 <h3 id="download-images">Download images<a class="anchor" aria-label="anchor" href="#download-images"></a>
 </h3>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Download a single image</span></span>
-<span><span class="va">file_ids</span> <span class="op">&lt;-</span> <span class="fu">results</span><span class="op">(</span><span class="va">q</span>, size <span class="op">=</span> <span class="fl">1</span><span class="op">)</span><span class="op">$</span><span class="va">file_id</span></span>
+<span><span class="va">file_ids</span> <span class="op">&lt;-</span> <span class="fu"><a href="http://bioconductor.github.io/GenomicDataCommons/reference/results.html" class="external-link">results</a></span><span class="op">(</span><span class="va">q</span>, size <span class="op">=</span> <span class="fl">1</span><span class="op">)</span><span class="op">$</span><span class="va">file_id</span></span>
 <span></span>
-<span><span class="fu">gdcdata</span><span class="op">(</span></span>
+<span><span class="fu"><a href="http://bioconductor.github.io/GenomicDataCommons/reference/gdcdata.html" class="external-link">gdcdata</a></span><span class="op">(</span></span>
 <span>    uuids           <span class="op">=</span> <span class="va">file_ids</span>,</span>
 <span>    destination_dir <span class="op">=</span> <span class="st">"tcga_images/"</span>,</span>
 <span>    progress        <span class="op">=</span> <span class="cn">TRUE</span></span>
@@ -215,7 +215,7 @@ Data Transfer Tool</a> (command-line client).</p>
 via R and use the CLI tool:</p>
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Write a manifest</span></span>
-<span><span class="fu">manifest</span><span class="op">(</span><span class="va">q_filtered</span><span class="op">)</span> <span class="op">|&gt;</span> <span class="fu"><a href="https://rdrr.io/r/utils/write.table.html" class="external-link">write.table</a></span><span class="op">(</span><span class="st">"gdc_manifest.txt"</span>,</span>
+<span><span class="fu"><a href="http://bioconductor.github.io/GenomicDataCommons/reference/manifest.html" class="external-link">manifest</a></span><span class="op">(</span><span class="va">q_filtered</span><span class="op">)</span> <span class="op">|&gt;</span> <span class="fu"><a href="https://rdrr.io/r/utils/write.table.html" class="external-link">write.table</a></span><span class="op">(</span><span class="st">"gdc_manifest.txt"</span>,</span>
 <span>    sep <span class="op">=</span> <span class="st">"\t"</span>, quote <span class="op">=</span> <span class="cn">FALSE</span>, row.names <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div>
 <div class="sourceCode" id="cb8"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb8-1"><a href="#cb8-1" tabindex="-1"></a><span class="co"># Then download with the GDC client</span></span>
 <span id="cb8-2"><a href="#cb8-2" tabindex="-1"></a><span class="ex">gdc-client</span> download <span class="at">-m</span> gdc_manifest.txt <span class="at">-d</span> tcga_images/</span></code></pre></div>
@@ -229,14 +229,14 @@ metadata:</p>
 <code class="sourceCode R"><span><span class="co"># Get associated case metadata</span></span>
 <span><span class="va">case_ids</span> <span class="op">&lt;-</span> <span class="va">res</span><span class="op">$</span><span class="va">cases</span> <span class="op">|&gt;</span> <span class="fu"><a href="https://rdrr.io/r/base/lapply.html" class="external-link">sapply</a></span><span class="op">(</span>\<span class="op">(</span><span class="va">x</span><span class="op">)</span> <span class="va">x</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span><span class="op">)</span></span>
 <span></span>
-<span><span class="fu">cases</span><span class="op">(</span><span class="op">)</span> <span class="op">|&gt;</span></span>
-<span>    <span class="fu">GenomicDataCommons</span><span class="fu">::</span><span class="fu">filter</span><span class="op">(</span><span class="op">~</span> <span class="va">case_id</span> <span class="op"><a href="https://rdrr.io/r/base/match.html" class="external-link">%in%</a></span> <span class="va">case_ids</span><span class="op">)</span> <span class="op">|&gt;</span></span>
-<span>    <span class="fu">select</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"case_id"</span>,</span>
+<span><span class="fu"><a href="http://bioconductor.github.io/GenomicDataCommons/reference/query.html" class="external-link">cases</a></span><span class="op">(</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>    <span class="fu">GenomicDataCommons</span><span class="fu">::</span><span class="fu"><a href="http://bioconductor.github.io/GenomicDataCommons/reference/filtering.html" class="external-link">filter</a></span><span class="op">(</span><span class="op">~</span> <span class="va">case_id</span> <span class="op"><a href="https://rdrr.io/r/base/match.html" class="external-link">%in%</a></span> <span class="va">case_ids</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>    <span class="fu"><a href="http://bioconductor.github.io/GenomicDataCommons/reference/select.html" class="external-link">select</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"case_id"</span>,</span>
 <span>             <span class="st">"diagnoses.tumor_stage"</span>,</span>
 <span>             <span class="st">"diagnoses.morphology"</span>,</span>
 <span>             <span class="st">"demographic.gender"</span>,</span>
 <span>             <span class="st">"demographic.age_at_index"</span><span class="op">)</span><span class="op">)</span> <span class="op">|&gt;</span></span>
-<span>    <span class="fu">results</span><span class="op">(</span>size <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">case_ids</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
+<span>    <span class="fu"><a href="http://bioconductor.github.io/GenomicDataCommons/reference/results.html" class="external-link">results</a></span><span class="op">(</span>size <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">case_ids</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 </div>
 </div>
 <div class="section level2">
@@ -274,19 +274,19 @@ library:</p>
 <span><span class="co">#&gt;  system   x86_64, linux-gnu</span></span>
 <span><span class="co">#&gt;  ui       X11</span></span>
 <span><span class="co">#&gt;  language en</span></span>
-<span><span class="co">#&gt;  collate  C.UTF-8</span></span>
-<span><span class="co">#&gt;  ctype    C.UTF-8</span></span>
-<span><span class="co">#&gt;  tz       UTC</span></span>
-<span><span class="co">#&gt;  date     2026-05-19</span></span>
-<span><span class="co">#&gt;  pandoc   3.8.3 @ /opt/hostedtoolcache/pandoc/3.8.3/x64/ (via rmarkdown)</span></span>
-<span><span class="co">#&gt;  quarto   NA</span></span>
+<span><span class="co">#&gt;  collate  en_US.UTF-8</span></span>
+<span><span class="co">#&gt;  ctype    en_US.UTF-8</span></span>
+<span><span class="co">#&gt;  tz       Etc/UTC</span></span>
+<span><span class="co">#&gt;  date     2026-05-20</span></span>
+<span><span class="co">#&gt;  pandoc   3.9.0.2 @ /usr/bin/ (via rmarkdown)</span></span>
+<span><span class="co">#&gt;  quarto   1.9.36 @ /usr/local/bin/quarto</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB; font-weight: bold;">─ Packages ───────────────────────────────────────────────────────────────────</span></span></span>
 <span><span class="co">#&gt;  <span style="color: #555555; font-style: italic;">package    </span> <span style="color: #555555; font-style: italic;">*</span> <span style="color: #555555; font-style: italic;">version</span> <span style="color: #555555; font-style: italic;">date (UTC)</span> <span style="color: #555555; font-style: italic;">lib</span> <span style="color: #555555; font-style: italic;">source</span></span></span>
-<span><span class="co">#&gt;  BiocManager   1.30.27 <span style="color: #555555;">2025-11-14</span> <span style="color: #555555;">[1]</span> <span style="color: #BB00BB; font-weight: bold;">RSPM (R 4.6.0)</span></span></span>
-<span><span class="co">#&gt;  BiocStyle   * 2.40.0  <span style="color: #555555;">2026-04-28</span> <span style="color: #555555;">[1]</span> <span style="color: #555555;">Bioconductor 3.23 (R 4.6.0)</span></span></span>
-<span><span class="co">#&gt;  bookdown      0.46    <span style="color: #555555;">2025-12-05</span> <span style="color: #555555;">[1]</span> <span style="color: #BB00BB; font-weight: bold;">RSPM (R 4.6.0)</span></span></span>
-<span><span class="co">#&gt;  bslib         0.11.0  <span style="color: #555555;">2026-05-16</span> <span style="color: #555555;">[1]</span> <span style="color: #BB00BB; font-weight: bold;">RSPM (R 4.6.0)</span></span></span>
+<span><span class="co">#&gt;  BiocManager   1.30.27 <span style="color: #555555;">2025-11-14</span> <span style="color: #555555;">[1]</span> <span style="color: #555555;">CRAN (R 4.6.0)</span></span></span>
+<span><span class="co">#&gt;  BiocStyle   * 2.40.0  <span style="color: #555555;">2026-04-28</span> <span style="color: #555555;">[1]</span> <span style="color: #BB00BB; font-weight: bold;">Bioconduc~</span></span></span>
+<span><span class="co">#&gt;  bookdown      0.46    <span style="color: #555555;">2025-12-05</span> <span style="color: #555555;">[1]</span> <span style="color: #BB00BB; font-weight: bold;">RSPM</span></span></span>
+<span><span class="co">#&gt;  bslib         0.10.0  <span style="color: #555555;">2026-01-26</span> <span style="color: #555555;">[1]</span> <span style="color: #BB00BB; font-weight: bold;">RSPM (R 4.6.0)</span></span></span>
 <span><span class="co">#&gt;  cachem        1.1.0   <span style="color: #555555;">2024-05-16</span> <span style="color: #555555;">[1]</span> <span style="color: #BB00BB; font-weight: bold;">RSPM (R 4.6.0)</span></span></span>
 <span><span class="co">#&gt;  cli           3.6.6   <span style="color: #555555;">2026-04-09</span> <span style="color: #555555;">[1]</span> <span style="color: #BB00BB; font-weight: bold;">RSPM (R 4.6.0)</span></span></span>
 <span><span class="co">#&gt;  desc          1.4.3   <span style="color: #555555;">2023-12-10</span> <span style="color: #555555;">[1]</span> <span style="color: #BB00BB; font-weight: bold;">RSPM (R 4.6.0)</span></span></span>
@@ -295,10 +295,12 @@ library:</p>
 <span><span class="co">#&gt;  fastmap       1.2.0   <span style="color: #555555;">2024-05-15</span> <span style="color: #555555;">[1]</span> <span style="color: #BB00BB; font-weight: bold;">RSPM (R 4.6.0)</span></span></span>
 <span><span class="co">#&gt;  fs            2.1.0   <span style="color: #555555;">2026-04-18</span> <span style="color: #555555;">[1]</span> <span style="color: #BB00BB; font-weight: bold;">RSPM (R 4.6.0)</span></span></span>
 <span><span class="co">#&gt;  htmltools     0.5.9   <span style="color: #555555;">2025-12-04</span> <span style="color: #555555;">[1]</span> <span style="color: #BB00BB; font-weight: bold;">RSPM (R 4.6.0)</span></span></span>
+<span><span class="co">#&gt;  htmlwidgets   1.6.4   <span style="color: #555555;">2023-12-06</span> <span style="color: #555555;">[1]</span> <span style="color: #BB00BB; font-weight: bold;">RSPM (R 4.6.0)</span></span></span>
 <span><span class="co">#&gt;  jquerylib     0.1.4   <span style="color: #555555;">2021-04-26</span> <span style="color: #555555;">[1]</span> <span style="color: #BB00BB; font-weight: bold;">RSPM (R 4.6.0)</span></span></span>
 <span><span class="co">#&gt;  jsonlite      2.0.0   <span style="color: #555555;">2025-03-27</span> <span style="color: #555555;">[1]</span> <span style="color: #BB00BB; font-weight: bold;">RSPM (R 4.6.0)</span></span></span>
 <span><span class="co">#&gt;  knitr         1.51    <span style="color: #555555;">2025-12-20</span> <span style="color: #555555;">[1]</span> <span style="color: #BB00BB; font-weight: bold;">RSPM (R 4.6.0)</span></span></span>
 <span><span class="co">#&gt;  lifecycle     1.0.5   <span style="color: #555555;">2026-01-08</span> <span style="color: #555555;">[1]</span> <span style="color: #BB00BB; font-weight: bold;">RSPM (R 4.6.0)</span></span></span>
+<span><span class="co">#&gt;  otel          0.2.0   <span style="color: #555555;">2025-08-29</span> <span style="color: #555555;">[1]</span> <span style="color: #BB00BB; font-weight: bold;">RSPM (R 4.6.0)</span></span></span>
 <span><span class="co">#&gt;  pkgdown       2.2.0   <span style="color: #555555;">2025-11-06</span> <span style="color: #555555;">[1]</span> <span style="color: #BB00BB; font-weight: bold;">RSPM (R 4.6.0)</span></span></span>
 <span><span class="co">#&gt;  R6            2.6.1   <span style="color: #555555;">2025-02-15</span> <span style="color: #555555;">[1]</span> <span style="color: #BB00BB; font-weight: bold;">RSPM (R 4.6.0)</span></span></span>
 <span><span class="co">#&gt;  ragg          1.5.2   <span style="color: #555555;">2026-03-23</span> <span style="color: #555555;">[1]</span> <span style="color: #BB00BB; font-weight: bold;">RSPM (R 4.6.0)</span></span></span>
@@ -311,8 +313,8 @@ library:</p>
 <span><span class="co">#&gt;  xfun          0.57    <span style="color: #555555;">2026-03-20</span> <span style="color: #555555;">[1]</span> <span style="color: #BB00BB; font-weight: bold;">RSPM (R 4.6.0)</span></span></span>
 <span><span class="co">#&gt;  yaml          2.3.12  <span style="color: #555555;">2025-12-10</span> <span style="color: #555555;">[1]</span> <span style="color: #BB00BB; font-weight: bold;">RSPM (R 4.6.0)</span></span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; <span style="color: #555555;"> [1] /home/runner/work/_temp/Library</span></span></span>
-<span><span class="co">#&gt; <span style="color: #555555;"> [2] /opt/R/4.6.0/lib/R/library</span></span></span>
+<span><span class="co">#&gt; <span style="color: #555555;"> [1] /usr/local/lib/R/site-library</span></span></span>
+<span><span class="co">#&gt; <span style="color: #555555;"> [2] /usr/local/lib/R/library</span></span></span>
 <span><span class="co">#&gt;  <span style="color: #BBBBBB; background-color: #BB0000;">*</span> ── Packages attached to the search path.</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB; font-weight: bold;">──────────────────────────────────────────────────────────────────────────────</span></span></span></code></pre></div>
