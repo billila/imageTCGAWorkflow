@@ -14,7 +14,12 @@ for the complete workflow.
 \code{vignette("imageTCGAWorkflow", package = "imageTCGAWorkflow")}
 }
 \author{
-\strong{Maintainer}: Ilaria Billato \email{ilaria.billato@unipd.it} (\href{https://orcid.org/0000-0002-3335-3254}{ORCID}) (Department of Biology, University of Padova)
+\strong{Maintainer}: Ilaria Billato \email{ilaria.billato@unipd.it} (\href{https://orcid.org/0000-0002-3335-3254}{ORCID}) (affiliation: Department of Biology, University of Padova)
+
+Authors:
+\itemize{
+  \item Ilaria Billato \email{ilaria.billato@unipd.it} (\href{https://orcid.org/0000-0002-3335-3254}{ORCID}) (affiliation: Department of Biology, University of Padova)
+}
 
 }
 \keyword{internal}

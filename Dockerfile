@@ -22,6 +22,37 @@ COPY --chown=rstudio:rstudio . /home/rstudio/imageTCGAWorkflow
 RUN Rscript -e "devtools::install('imageTCGAWorkflow', dependencies = TRUE, \
     build_vignettes = TRUE)"
 
+# Pre-download workshop data into BiocFileCache so students don't wait
+RUN Rscript -e ' \
+    library(imageFeatureTCGA); \
+    library(imageTCGAutils); \
+    library(dplyr); \
+    sid <- "TCGA-23-1021-01Z-00-DX1.F07C221B-D401-47A5-9519-10DE59CA1E9D"; \
+    \
+    getCatalog("hovernet") |> \
+        filter(filename == paste0(sid, ".json.gz")) |> \
+        getFileURLs() |> HoverNet(outClass = "SpatialExperiment") |> import(); \
+    \
+    getCatalog("hovernet") |> \
+        filter(filename == paste0(sid, ".h5ad.gz")) |> \
+        getFileURLs() |> HoverNet(outClass = "SpatialExperiment") |> import(); \
+    \
+    getCatalog("hovernet") |> \
+        filter(filename == paste0(sid, ".h5ad.gz")) |> \
+        getFileURLs() |> HoverNet(outClass = "SpatialFeatureExperiment") |> import(); \
+    \
+    getCatalog("provgigapath") |> \
+        filter(filename == paste0(sid, ".csv.gz"), level == "slide_level") |> \
+        getFileURLs() |> ProvGiga() |> import(); \
+    \
+    getCatalog("provgigapath") |> \
+        filter(filename == paste0(sid, ".csv.gz"), level == "tile_level") |> \
+        getFileURLs() |> ProvGiga() |> import(); \
+    \
+    ov <- getCatalog("provgigapath") |> filter(Project.ID == "TCGA-OV"); \
+    ov[1:5, ] |> getFileURLs() |> ProvGigaList(); \
+    '
+
 EXPOSE 8787
 
 CMD ["/init"]

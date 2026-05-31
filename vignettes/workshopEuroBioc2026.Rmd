@@ -6,7 +6,6 @@ author:
     affiliation: Department of Biology, University of Padova
     email: ilaria.billato@unipd.it
 date: "`r Sys.Date()`"
-package: imageTCGAWorkflow
 output:
   BiocStyle::html_document:
     toc: true
@@ -19,7 +18,7 @@ vignette: >
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(collapse = TRUE, comment = "#>", eval = FALSE)
+knitr::opts_chunk$set(collapse = TRUE, comment = "#>", eval = TRUE)
 ```
 
 ---
@@ -192,43 +191,89 @@ library(ggplot2)
 We use the H5AD file for the ovarian cancer example slide, which includes
 additional per-nucleus features (mean intensity, nearest-neighbour distance):
 
-```{r hovernet-import}
-hov_file <- paste0(
-    "https://store.cancerdatasci.org/hovernet/h5ad/",
-    "TCGA-23-1021-01Z-00-DX1.F07C221B-D401-47A5-9519-10DE59CA1E9D.h5ad.gz"
-)
+HoVerNet data is available in JSON, GeoJSON, thumb and H5AD formats.
 
-hn_spe <- HoverNet(hov_file, outClass = "SpatialExperiment") |>
-    import()
+Note that the thumb format refers to the png thumbnails of the whole-slide images.
+```{r explore imageFeatureTCGA}
+getCatalog()
 
-hn_spe
+getCatalog("hovernet")
 ```
 
-Alternatively, import via the catalogue:
+You can import HoVerNet segmentation results as either a SpatialExperiment or SpatialFeatureExperiment. Here we selectively import a file based on its filename, but you can also filter by other metadata fields such as Project.ID, pipeline, format, etc.
 
-```{r hovernet-catalog}
-hn_spe <- getCatalog("hovernet") |>
+## HoVerNet outputs
+
+HoVerNet provides nuclei segmentation and classification results at the
+single-cell level. Each detected nucleus is represented by:
+
+- spatial coordinates (`x`, `y`) in pixel units relative to the slide
+- predicted cell type labels
+- class probabilities
+- polygon contours describing nuclear boundaries (when available)
+
+When imported as a `SpatialExperiment` or `SpatialFeatureExperiment`,
+the data are structured as follows:
+
+- **columns** represent individual nuclei
+- **colData** stores cell-level metadata (coordinates, cell types)
+- **assays** may contain quantitative features (e.g., probabilities)
+- **metadata** may include segmentation contours and image information
+
+These objects enable spatial analyses and integration with other
+Bioconductor workflows for spatial transcriptomics and imaging data.
+```{r hovernet-import}
+hspe <- getCatalog("hovernet") |>
     dplyr::filter(
-        tcga_barcode == "TCGA-23-1021-01Z-00-DX1.F07C221B-D401-47A5-9519-10DE59CA1E9D",
-        format == "h5ad"
+        filename == paste(
+            "TCGA-23-1021-01Z-00-DX1",
+            "F07C221B-D401-47A5-9519-10DE59CA1E9D",
+            "json",
+            "gz",
+            sep = "."
+        )
     ) |>
     getFileURLs() |>
     HoverNet(outClass = "SpatialExperiment") |>
     import()
+hspe
 ```
+
+```{r}
+colData(hspe)
+```
+
 
 ## Explore
 
 ```{r hovernet-explore}
 # How many nuclei? What cell types?
-dim(hn_spe)
-table(colData(hn_spe)$label)
+dim(hspe)
+table(colData(hspe)$label)
 
 # Spatial coordinates
-head(spatialCoords(hn_spe))
+head(spatialCoords(hspe))
+```
 
+
+```{r hovernet-explore h5ad}
 # Per-nucleus features (H5AD only)
-head(colData(hn_spe)[, c("mean_intensity", "nearest_neighbor_distance")])
+hspe_h5ad <- getCatalog("hovernet") |>
+    dplyr::filter(
+        filename == paste(
+            "TCGA-23-1021-01Z-00-DX1",
+            "F07C221B-D401-47A5-9519-10DE59CA1E9D",
+            "h5ad",
+            "gz",
+            sep = "."
+        )
+    ) |>
+    getFileURLs() |>
+    HoverNet(outClass = "SpatialExperiment") |>
+    import()
+hspe_h5ad
+
+head(colData(hspe_h5ad)[, c("mean_intensity", "nearest_neighbor_distance")])
 ```
 
 ## Visualize
@@ -240,7 +285,7 @@ thumb_path <- paste0(
 )
 
 plotHoverNetH5ADOverlay(
-    hn_spe,
+    hspe_h5ad,
     thumb_path,
     title = "Ovarian Cancer — Cell Segmentation (TCGA-23-1021)"
 )
@@ -255,19 +300,93 @@ library(imageTCGAutils)
 library(spdep)
 ```
 
+## ProvGigaPath embeddings
+
+ProvGigaPath is a foundation model trained on large-scale pathology image
+tiles that produces high-dimensional embeddings summarizing visual and
+morphological features.
+
+Two levels of embeddings are provided:
+
+### Slide-level embeddings
+
+Slide-level embeddings summarize the entire whole-slide image into a
+single feature vector.
+
+- one row per slide
+- embedding dimension corresponds to the encoder output size
+- suitable for slide-level prediction or clustering tasks
+
+### Tile-level embeddings
+
+Tile-level embeddings provide localized representations of tissue regions.
+
+Each tile entry includes:
+
+- spatial coordinates (`tile_x`, `tile_y`) corresponding to the tile
+  position on the slide
+- a high-dimensional embedding vector
+- optional metadata describing tile extraction parameters
+
+These embeddings enable spatial analyses of tissue heterogeneity and can
+be integrated with cell-level data from HoVerNet using complementary
+packages such as `imageTCGAutils`.
+
+
 ## Import tile-level embeddings
 
-```{r prov-tile}
-tile_url <- paste0(
-    "https://store.cancerdatasci.org/provgigapath/tile_level/",
-    "TCGA-23-1021-01Z-00-DX1.F07C221B-D401-47A5-9519-10DE59CA1E9D.csv.gz"
-)
+## Slide-level embeddings
 
-pg_tiles <- ProvGiga(tile_url) |> import()
+ProvGigaPath embeddings summarize tile or slide-level image features. In
+this example, we import slide-level embeddings for a single file. Each
+row corresponds to a slide, with an embedding vector describing the
+image-derived features.
 
-# 211 tiles × 1,543 columns (tile_x, tile_y + 1,536 embedding dims named 0–1535)
-dim(pg_tiles)
+```{r explore imageFeatureTCGA provgiga}
+getCatalog()
+
+getCatalog("provgigapath")
 ```
+
+```{r provgigapth slide level data}
+pg_slide <- getCatalog("provgigapath") |>
+    dplyr::filter(
+        filename == paste(
+            "TCGA-23-1021-01Z-00-DX1",
+            "F07C221B-D401-47A5-9519-10DE59CA1E9D",
+            "csv",
+            "gz",
+            sep = "."
+        ) &
+        level == "slide_level"
+    ) |>
+    getFileURLs() |>
+    ProvGiga() |>
+    import()
+```
+
+```{r provgigapth tile level data}
+pg_tiles <- getCatalog("provgigapath") |>
+    dplyr::filter(
+        filename == paste(
+            "TCGA-23-1021-01Z-00-DX1",
+            "F07C221B-D401-47A5-9519-10DE59CA1E9D",
+            "csv",
+            "gz",
+            sep = "."
+        ) &
+        level == "tile_level"
+    ) |>
+    getFileURLs() |>
+    ProvGiga() |>
+    import()
+
+pg_tiles
+dim(pg_tiles)
+# 211 tiles × 1,543 columns (tile_x, tile_y + 1,536 embedding dims named 0–1535)
+```
+
+
 
 ## PCA on tile embeddings
 
@@ -279,7 +398,7 @@ pca_res <- prcomp(pg_tiles[, embedding_cols], scale. = TRUE)
 pca_df <- data.frame(coords, PC1 = pca_res$x[, 1], PC2 = pca_res$x[, 2])
 
 ggplot(pca_df, aes(x = tile_x, y = tile_y, color = PC1)) +
-    geom_point(size = 3) +
+    geom_point(size = 1) +
     scale_color_viridis_c() +
     coord_fixed() +
     theme_minimal() +
@@ -287,36 +406,197 @@ ggplot(pca_df, aes(x = tile_x, y = tile_y, color = PC1)) +
          subtitle = "TCGA-23-1021 (Ovarian Cancer)")
 ```
 
+## Point Pattern Analysis
+
+Point Pattern Analysis (PPA) provides a framework to investigate the spatial
+distribution of cells within histopathology images. When HoVerNet output
+is imported through `ImageFeatureTCGA`, each cell is represented with
+spatial coordinates and associated morphological or intensity features.
+These data allow the computation of global and local spatial autocorrelation
+metrics, such as Moran's I, Local Moran's I (LISA), Geary's C,
+and Local Spatial Heteroscedasticity (LOSH).
+
+Here, we illustrate how to perform spatial autocorrelation
+analysis starting from a `SpatialFeatureExperiment` object created from
+HoVerNet segmentation results.
+
+```{r}
+hsfe <- getCatalog("hovernet") |>
+    dplyr::filter(
+        filename == paste(
+            "TCGA-23-1021-01Z-00-DX1",
+            "F07C221B-D401-47A5-9519-10DE59CA1E9D",
+            "h5ad",
+            "gz",
+            sep = "."
+        )
+    ) |>
+    getFileURLs() |>
+    HoverNet(outClass = "SpatialFeatureExperiment") |>
+    import()
+hsfe
+```
+
+To investigate spatial patterns in the tissue, we use the PCA-reduced embeddings
+for each tile. Each tile has a physical location (tile_x, tile_y) on the slide,
+which allows us to explore how similar embedding values cluster across space. 
+We construct a k-nearest neighbor graph to define which tiles are spatially 
+“connected,” and then compute global and local spatial autocorrelation metrics. 
+
 ## Spatial autocorrelation (Moran's I)
 
+Moran's I quantifies the degree to which similar values cluster spatially. 
+A positive Moran's I indicates spatial clustering, while negative values 
+indicate spatial dispersion.
+
+
+```{r coords}
+pg_tiles <- bind_cols(
+    pg_tiles,
+    as_tibble(pca_res$x)[, 1:2] |> rename(PC1 = "PC1", PC2 = "PC2")
+)
+
+coords <- pg_tiles[, c("tile_x", "tile_y")]
+```
+
+
+
 ```{r morans-i}
-nb <- knn2nb(knearneigh(as.matrix(coords), k = 6))
+nb <- knn2nb(knearneigh(coords, k = 6))
 lw <- nb2listw(nb, style = "W")
+```
 
-mi <- moran.test(pca_df$PC1, lw)
+Next, we calculate global spatial autocorrelation using Moran’s I and Geary’s C,
+which quantify the overall tendency of similar PC1 values to cluster or disperse
+on the tissue slide. We also compute Local Moran’s I (LISA) to detect local 
+clusters of similar embedding values.
+
+```{r metrics}
+mi <- moran.test(pg_tiles$PC1, lw)
+gc <- geary.test(pg_tiles$PC1, lw)
+lisa <- localmoran(pg_tiles$PC1, lw)
+pg_tiles$localI <- lisa[, "Ii"]
+pg_tiles$localI_pval <- lisa[, "Pr(z != E(Ii))"]
+
 mi
+gc
 ```
 
-## Import slide-level embeddings for TCGA-OV
+We visualize the spatial patterns. The Moran scatterplot shows the relationship 
+between each tile’s PC1 value and the mean of its neighbors, while the LISA plot
+highlights local clusters (“hotspots”) of high or low PC1 values across the 
+tissue slide.
 
-```{r prov-slide}
-# Multiple slides → SummarizedExperiment (768 × n slides)
-pgl <- getCatalog("provgigapath") |>
-    dplyr::filter(level == "slide_level", Project.ID == "TCGA-OV") |>
-    dplyr::slice(1:10) |>
-    getFileURLs() |>
-    ProvGigaList() |>
-    import()
+```{r metrics 2}
+moran.plot(pg_tiles$PC1, lw, labels = FALSE,
+                main = "Moran scatterplot of PC1")
 
-pgl
-# class: SummarizedExperiment
-# dim: 768 10
-# assays(1): embeddings
+# LISA visualization
+df_lisa <- data.frame(coords, Ii = lisa[, "Ii"])
+ggplot(df_lisa, aes(x = tile_x, y = tile_y, color = Ii)) +
+    geom_point(size = 1) +
+    scale_color_viridis_c() +
+    coord_equal() +
+    theme_minimal() +
+    ggtitle("Local Moran's I (LISA) for PC1")
 ```
+
+- **Ripley's K / L function** — tests for clustering vs. regularity at
+  multiple spatial scales
+- **Cross-type K function** — spatial interaction between pairs of cell types
+  (e.g. neoplastic and inflammatory)
+  
+```{r}
+library(spatstat)
+
+coords <- as.data.frame(spatialCoords(hspe))
+types  <- colData(hspe)$label
+
+# Create a marked point pattern
+win <- owin(
+  xrange = range(coords$x),
+  yrange = range(coords$y)
+)
+pp <- ppp(x = coords$x, y = coords$y, marks = factor(types), window = win)
+
+# Ripley's L for neoplastic cells
+L_neo <- Lest(subset(pp, marks == "neopla"), correction = "isotropic")
+plot(L_neo, main = "Ripley's L — neoplastic nuclei")
+
+# Cross-type K: neoplastic vs. inflammatory - run if you have enough RAM (>20GB)
+# K_cross <- Kcross(pp, i = "neopla", j = "inflam", correction = "isotropic")
+# plot(K_cross, main = "Cross-type K: neoplastic vs. inflammatory")
+```
+
+
+# Adding HoverNet Nuclei Features
+
+You can import HoVerNet segmentation results as a
+`SpatialExperiment` or `SpatialFeatureExperiment`.
+
+In this section we want show you how to integrate HoVerNet classification and 
+segmentation output with Prov-GigaPath embeddings.
+
+```{r importHover}
+# import HoVerNet
+hspe_h5ad
+
+# import Prov-GigaPath
+pg_tiles
+```
+
+
+
+```{r cell coordinates}
+# Extract cell coordinates from HoVerNet
+cell_coords <- spatialCoords(hspe_h5ad)
+
+# Extract nuclei metadata 
+cell_meta <- colData(hspe_h5ad)
+cell_meta$x <-cell_coords[,1]
+cell_meta$y <-cell_coords[,2]
+```
+
+# Visualizing Hovernet nuclei vs tile coordinates to see that they do not match 
+perfectly. You can use matchHoverNetToTiles to compute the scaling factor.
+
+```{r plotting hovernet vs tiles PCA}
+plot(cell_meta$x, cell_meta$y, pch=16, col="#0000FF20")
+points(pg_tiles$tile_x, 
+        pg_tiles$tile_y, 
+        pch=16, 
+        col="#FF000020")
+
+```
+
+
+# Scale factor between nuclei coordinates and tile coordinates
+
+```{r compute scaling factor}
+match_hv_pg <- matchHoverNetToTiles(hspe_h5ad, pg_tiles)
+```
+
+```{r visualizing tile level with hovernet}
+# ggplot(match_hv_pg$tiles_with_nuclei, aes(tile_x, tile_y, 
+#                                     color = cell_type_label, 
+#                                     size = N)) +
+#     geom_point(alpha = 0.7) +
+#     coord_equal() +
+#     theme_minimal() +
+#     labs(title = "All HoverNet cell types per tile")
+
+ggplot(match_hv_pg$tiles_with_nuclei, aes(tile_x, tile_y, 
+                                    color = dominant_cell_type)) +
+    geom_point(size = 1) +
+    coord_equal() +
+    theme_minimal() +
+    labs(title = "Per-tile dominant HoverNet cell type")
+```
+
 
 # Part 7 — Multi-Modal Integration (70–80 min) {.demo}
 
-> **Format:** Demo / Slides — TBD (working code to be added before the workshop)
+> **Format:** Slides / Hands-on
 
 Planned content:
 
@@ -326,10 +606,27 @@ Planned content:
 - Visualize latent factors coloured by clinical annotation
 
 ```{r mofa-demo}
-# TBD: MOFA2 integration example with TCGA-OV
-# library(MOFA2)
-# ...
+library(MOFA2)
+
 ```
+
+# Load data
+
+```{r load embeddings}
+ov_slide_files <- getCatalog("provgigapath") |> 
+    dplyr::filter(Project.ID == "TCGA-OV")
+
+ov_slide_files <- ov_slide_files[1:5, ]
+
+
+structure_last <- ov_slide_files |>
+    getFileURLs() |>
+    ProvGigaList()
+
+rownames(structure_last) <- ov_slide_files[["tcga_barcode"]]
+
+```
+
 
 > See the [Downstream Analyses vignette](downstream-analyses.html) for a
 > more detailed walkthrough.
@@ -338,21 +635,8 @@ Planned content:
 
 > **Format:** Open
 
-Participants can explore their cancer type of interest:
+Participants can explore their cancer type of interest!
 
-```{r free-explore}
-# Browse available cancer types
-getCatalog("hovernet") |>
-    dplyr::count(Project.ID, sort = TRUE)
-
-# Pick a cancer type and repeat the workflow
-getCatalog("provgigapath") |>
-    dplyr::filter(level == "slide_level", Project.ID == "TCGA-BRCA") |>
-    dplyr::slice(1:5) |>
-    getFileURLs() |>
-    ProvGigaList() |>
-    import()
-```
 
 ---
 
