@@ -26,22 +26,15 @@ The TCGA image database contains ~11,765 diagnostic whole-slide images
 6.  **Downstream analyses** — multi-omics integration (MOFA+), point
     pattern analysis, survival
 
-![Workflow schema](images/workflow-schema.png)
+## Workshop Docker
 
-## Installation
+docker run -e PASSWORD=bioc -p 8787:8787
+ghcr.io/billila/imagetcgaworkflow:latest
 
-``` r
+This will start an RStudio Server instance accessible at
+<http://localhost:8787> (username: rstudio, password: bioc)
 
-if (!requireNamespace("BiocManager", quietly = TRUE))
-    install.packages("BiocManager")
-
-BiocManager::install(c(
-    "billila/imageTCGA",
-    "waldronlab/imageFeatureTCGA",
-    "waldronlab/imageTCGAutils",
-    "waldronlab/HistoImagePlot"
-))
-```
+\`\`\`
 
 ## Website
 

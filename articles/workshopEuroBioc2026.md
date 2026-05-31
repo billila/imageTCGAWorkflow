@@ -42,25 +42,14 @@ within R/Bioconductor, in compatible data structures:
 - Familiarity with `SummarizedExperiment` or `SpatialExperiment` is
   helpful but not required
 
-**Software** (install before the workshop):
+**Software**:
 
 ``` r
-
-if (!requireNamespace("BiocManager", quietly = TRUE))
-    install.packages("BiocManager")
-
-BiocManager::install(c(
-    "billila/imageTCGA",
-    "waldronlab/imageFeatureTCGA",
-    "waldronlab/imageTCGAutils",
-    "waldronlab/HistoImagePlot",
-    "SpatialExperiment",
-    "BiocFileCache",
-    "dplyr",
-    "ggplot2",
-    "spdep"
-))
+docker run -e PASSWORD=bioc -p 8787:8787 ghcr.io/billila/imagetcgaworkflow:latest
 ```
+
+This will start an RStudio Server instance accessible at
+<http://localhost:8787> (username: rstudio, password: bioc)
 
 ## Workshop Participation
 
@@ -411,7 +400,7 @@ sessioninfo::session_info()
 #>  collate  en_US.UTF-8
 #>  ctype    en_US.UTF-8
 #>  tz       Etc/UTC
-#>  date     2026-05-20
+#>  date     2026-05-31
 #>  pandoc   3.9.0.2 @ /usr/bin/ (via rmarkdown)
 #>  quarto   1.9.36 @ /usr/local/bin/quarto
 #> 

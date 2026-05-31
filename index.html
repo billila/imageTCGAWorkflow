@@ -123,21 +123,13 @@
 <li>
 <strong>Downstream analyses</strong> — multi-omics integration (MOFA+), point pattern analysis, survival</li>
 </ol>
-<p><img src="images/workflow-schema.png" width="100%" alt="Workflow schema"></p>
 </div>
 <div class="section level2">
-<h2 id="installation">Installation<a class="anchor" aria-label="anchor" href="#installation"></a>
+<h2 id="workshop-docker">Workshop Docker<a class="anchor" aria-label="anchor" href="#workshop-docker"></a>
 </h2>
-<div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="kw">if</span> <span class="op">(</span><span class="op">!</span><span class="fu"><a href="https://rdrr.io/r/base/ns-load.html" class="external-link">requireNamespace</a></span><span class="op">(</span><span class="st">"BiocManager"</span>, quietly <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span><span class="op">)</span></span>
-<span>    <span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="st">"BiocManager"</span><span class="op">)</span></span>
-<span></span>
-<span><span class="fu">BiocManager</span><span class="fu">::</span><span class="fu"><a href="https://bioconductor.github.io/BiocManager/reference/install.html" class="external-link">install</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span></span>
-<span>    <span class="st">"billila/imageTCGA"</span>,</span>
-<span>    <span class="st">"waldronlab/imageFeatureTCGA"</span>,</span>
-<span>    <span class="st">"waldronlab/imageTCGAutils"</span>,</span>
-<span>    <span class="st">"waldronlab/HistoImagePlot"</span></span>
-<span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
+<p>docker run -e PASSWORD=bioc -p 8787:8787 ghcr.io/billila/imagetcgaworkflow:latest</p>
+<p>This will start an RStudio Server instance accessible at <a href="http://localhost:8787" class="external-link uri">http://localhost:8787</a> (username: rstudio, password: bioc)</p>
+<p>```</p>
 </div>
 <div class="section level2">
 <h2 id="website">Website<a class="anchor" aria-label="anchor" href="#website"></a>
