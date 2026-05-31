@@ -20,7 +20,7 @@ COPY --chown=rstudio:rstudio . /home/rstudio/imageTCGAWorkflow
 
 # Install the package + all Depends/Imports/Suggests from DESCRIPTION
 RUN Rscript -e "devtools::install('imageTCGAWorkflow', dependencies = TRUE, \
-    build_vignettes = TRUE)"
+    build_vignettes = FALSE)"
 
 # Pre-download workshop data into BiocFileCache so students don't wait
 RUN Rscript -e ' \
