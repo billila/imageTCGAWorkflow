@@ -57,20 +57,14 @@ The TCGA image database contains ~11,765 diagnostic whole-slide images (WSI) fro
 5. **Visualization** — overlay cell segmentation on tissue thumbnails with `HistoImagePlot`
 6. **Downstream analyses** — multi-omics integration (MOFA+), point pattern analysis, survival
 
-<img src="images/workflow-schema.png" width="100%" alt="Workflow schema"/>
 
-## Installation
 
-```r
-if (!requireNamespace("BiocManager", quietly = TRUE))
-    install.packages("BiocManager")
+## Workshop Docker 
 
-BiocManager::install(c(
-    "billila/imageTCGA",
-    "waldronlab/imageFeatureTCGA",
-    "waldronlab/imageTCGAutils",
-    "waldronlab/HistoImagePlot"
-))
+docker run -e PASSWORD=bioc -p 8787:8787 ghcr.io/billila/imagetcgaworkflow:latest
+
+This will start an RStudio Server instance accessible at http://localhost:8787 (username: rstudio, password: bioc)
+
 ```
 
 ## Website
