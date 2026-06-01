@@ -23,6 +23,7 @@ RUN Rscript -e "devtools::install('imageTCGAWorkflow', dependencies = TRUE, \
     build_vignettes = FALSE)"
 
 # Pre-download workshop data into BiocFileCache so students don't wait
+USER rstudio
 RUN Rscript -e ' \
     library(imageFeatureTCGA); \
     library(imageTCGAutils); \
@@ -49,10 +50,8 @@ RUN Rscript -e ' \
         filter(filename == paste0(sid, ".csv.gz"), level == "tile_level") |> \
         getFileURLs() |> ProvGiga() |> import(); \
     \
-    ov <- getCatalog("provgigapath") |> filter(Project.ID == "TCGA-OV"); \
-    ov[1:5, ] |> getFileURLs() |> ProvGigaList(); \
     '
+USER root
 
 EXPOSE 8787
-
 CMD ["/init"]
