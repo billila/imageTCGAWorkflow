@@ -22,35 +22,44 @@ COPY --chown=rstudio:rstudio . /home/rstudio/imageTCGAWorkflow
 RUN Rscript -e "devtools::install('imageTCGAWorkflow', dependencies = TRUE, \
     build_vignettes = FALSE)"
 
-# Pre-download workshop data into BiocFileCache so students don't wait
+# Pre-download workshop data as rstudio user
 USER rstudio
+
 RUN Rscript -e ' \
-    library(imageFeatureTCGA); \
-    library(imageTCGAutils); \
-    library(dplyr); \
+    library(imageFeatureTCGA); library(dplyr); \
     sid <- "TCGA-23-1021-01Z-00-DX1.F07C221B-D401-47A5-9519-10DE59CA1E9D"; \
-    \
     getCatalog("hovernet") |> \
         filter(filename == paste0(sid, ".json.gz")) |> \
-        getFileURLs() |> HoverNet(outClass = "SpatialExperiment") |> import(); \
-    \
+        getFileURLs() |> HoverNet(outClass = "SpatialExperiment") |> import()'
+
+RUN Rscript -e ' \
+    library(imageFeatureTCGA); library(dplyr); \
+    sid <- "TCGA-23-1021-01Z-00-DX1.F07C221B-D401-47A5-9519-10DE59CA1E9D"; \
     getCatalog("hovernet") |> \
         filter(filename == paste0(sid, ".h5ad.gz")) |> \
-        getFileURLs() |> HoverNet(outClass = "SpatialExperiment") |> import(); \
-    \
+        getFileURLs() |> HoverNet(outClass = "SpatialExperiment") |> import()'
+
+RUN Rscript -e ' \
+    library(imageFeatureTCGA); library(dplyr); \
+    sid <- "TCGA-23-1021-01Z-00-DX1.F07C221B-D401-47A5-9519-10DE59CA1E9D"; \
     getCatalog("hovernet") |> \
         filter(filename == paste0(sid, ".h5ad.gz")) |> \
-        getFileURLs() |> HoverNet(outClass = "SpatialFeatureExperiment") |> import(); \
-    \
+        getFileURLs() |> HoverNet(outClass = "SpatialFeatureExperiment") |> import()'
+
+RUN Rscript -e ' \
+    library(imageFeatureTCGA); library(dplyr); \
+    sid <- "TCGA-23-1021-01Z-00-DX1.F07C221B-D401-47A5-9519-10DE59CA1E9D"; \
     getCatalog("provgigapath") |> \
         filter(filename == paste0(sid, ".csv.gz"), level == "slide_level") |> \
-        getFileURLs() |> ProvGiga() |> import(); \
-    \
+        getFileURLs() |> ProvGiga() |> import()'
+
+RUN Rscript -e ' \
+    library(imageFeatureTCGA); library(dplyr); \
+    sid <- "TCGA-23-1021-01Z-00-DX1.F07C221B-D401-47A5-9519-10DE59CA1E9D"; \
     getCatalog("provgigapath") |> \
         filter(filename == paste0(sid, ".csv.gz"), level == "tile_level") |> \
-        getFileURLs() |> ProvGiga() |> import(); \
-    \
-    '
+        getFileURLs() |> ProvGiga() |> import()'
+
 USER root
 
 EXPOSE 8787
