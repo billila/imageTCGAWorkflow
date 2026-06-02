@@ -83,7 +83,7 @@ Billato</h4>
 Padova<br><a class="author_email" href="mailto:#"></a><a href="mailto:ilaria.billato@unipd.it" class="email">ilaria.billato@unipd.it</a>
       </address>
                   
-            <h4 data-toc-skip class="date">2026-05-31</h4>
+            <h4 data-toc-skip class="date">2026-06-02</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/billila/imageTCGAWorkflow/blob/main/vignettes/workshopEuroBioc2026.Rmd" class="external-link"><code>vignettes/workshopEuroBioc2026.Rmd</code></a></small>
       <div class="d-none name"><code>workshopEuroBioc2026.Rmd</code></div>
@@ -373,52 +373,107 @@ required.</p>
 <p>We use the H5AD file for the ovarian cancer example slide, which
 includes additional per-nucleus features (mean intensity,
 nearest-neighbour distance):</p>
+<p>HoVerNet data is available in JSON, GeoJSON, thumb and H5AD
+formats.</p>
+<p>Note that the thumb format refers to the png thumbnails of the
+whole-slide images.</p>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">hov_file</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span></span>
-<span>    <span class="st">"https://store.cancerdatasci.org/hovernet/h5ad/"</span>,</span>
-<span>    <span class="st">"TCGA-23-1021-01Z-00-DX1.F07C221B-D401-47A5-9519-10DE59CA1E9D.h5ad.gz"</span></span>
-<span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/pkg/imageFeatureTCGA/man/getCatalog.html" class="external-link">getCatalog</a></span><span class="op">(</span><span class="op">)</span></span>
 <span></span>
-<span><span class="va">hn_spe</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/imageFeatureTCGA/man/HoverNet.html" class="external-link">HoverNet</a></span><span class="op">(</span><span class="va">hov_file</span>, outClass <span class="op">=</span> <span class="st">"SpatialExperiment"</span><span class="op">)</span> <span class="op">|&gt;</span></span>
-<span>    <span class="fu">import</span><span class="op">(</span><span class="op">)</span></span>
-<span></span>
-<span><span class="va">hn_spe</span></span></code></pre></div>
-<p>Alternatively, import via the catalogue:</p>
+<span><span class="fu"><a href="https://rdrr.io/pkg/imageFeatureTCGA/man/getCatalog.html" class="external-link">getCatalog</a></span><span class="op">(</span><span class="st">"hovernet"</span><span class="op">)</span></span></code></pre></div>
+<p>You can import HoVerNet segmentation results as either a
+SpatialExperiment or SpatialFeatureExperiment. Here we selectively
+import a file based on its filename, but you can also filter by other
+metadata fields such as Project.ID, pipeline, format, etc.</p>
+</div>
+<div class="section level3">
+<h3 id="hovernet-outputs">HoVerNet outputs<a class="anchor" aria-label="anchor" href="#hovernet-outputs"></a>
+</h3>
+<p>HoVerNet provides nuclei segmentation and classification results at
+the single-cell level. Each detected nucleus is represented by:</p>
+<ul>
+<li>spatial coordinates (<code>x</code>, <code>y</code>) in pixel units
+relative to the slide</li>
+<li>predicted cell type labels</li>
+<li>class probabilities</li>
+<li>polygon contours describing nuclear boundaries (when available)</li>
+</ul>
+<p>When imported as a <code>SpatialExperiment</code> or
+<code>SpatialFeatureExperiment</code>, the data are structured as
+follows:</p>
+<ul>
+<li>
+<strong>columns</strong> represent individual nuclei</li>
+<li>
+<strong>colData</strong> stores cell-level metadata (coordinates,
+cell types)</li>
+<li>
+<strong>assays</strong> may contain quantitative features (e.g.,
+probabilities)</li>
+<li>
+<strong>metadata</strong> may include segmentation contours and
+image information</li>
+</ul>
+<p>These objects enable spatial analyses and integration with other
+Bioconductor workflows for spatial transcriptomics and imaging data.</p>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">hn_spe</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/imageFeatureTCGA/man/getCatalog.html" class="external-link">getCatalog</a></span><span class="op">(</span><span class="st">"hovernet"</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<code class="sourceCode R"><span><span class="va">hspe</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/imageFeatureTCGA/man/getCatalog.html" class="external-link">getCatalog</a></span><span class="op">(</span><span class="st">"hovernet"</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>    <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span></span>
-<span>        <span class="va">tcga_barcode</span> <span class="op">==</span> <span class="st">"TCGA-23-1021-01Z-00-DX1.F07C221B-D401-47A5-9519-10DE59CA1E9D"</span>,</span>
-<span>        <span class="va">format</span> <span class="op">==</span> <span class="st">"h5ad"</span></span>
+<span>        <span class="va">filename</span> <span class="op">==</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste</a></span><span class="op">(</span></span>
+<span>            <span class="st">"TCGA-23-1021-01Z-00-DX1"</span>,</span>
+<span>            <span class="st">"F07C221B-D401-47A5-9519-10DE59CA1E9D"</span>,</span>
+<span>            <span class="st">"json"</span>,</span>
+<span>            <span class="st">"gz"</span>,</span>
+<span>            sep <span class="op">=</span> <span class="st">"."</span></span>
+<span>        <span class="op">)</span></span>
 <span>    <span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>    <span class="fu"><a href="https://rdrr.io/pkg/imageFeatureTCGA/man/getCatalog.html" class="external-link">getFileURLs</a></span><span class="op">(</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>    <span class="fu"><a href="https://rdrr.io/pkg/imageFeatureTCGA/man/HoverNet.html" class="external-link">HoverNet</a></span><span class="op">(</span>outClass <span class="op">=</span> <span class="st">"SpatialExperiment"</span><span class="op">)</span> <span class="op">|&gt;</span></span>
-<span>    <span class="fu">import</span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
+<span>    <span class="fu">import</span><span class="op">(</span><span class="op">)</span></span>
+<span><span class="va">hspe</span></span></code></pre></div>
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/pkg/SummarizedExperiment/man/SummarizedExperiment-class.html" class="external-link">colData</a></span><span class="op">(</span><span class="va">hspe</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level3">
 <h3 id="explore">Explore<a class="anchor" aria-label="anchor" href="#explore"></a>
 </h3>
-<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># How many nuclei? What cell types?</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/dim.html" class="external-link">dim</a></span><span class="op">(</span><span class="va">hn_spe</span><span class="op">)</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/table.html" class="external-link">table</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/pkg/SummarizedExperiment/man/SummarizedExperiment-class.html" class="external-link">colData</a></span><span class="op">(</span><span class="va">hn_spe</span><span class="op">)</span><span class="op">$</span><span class="va">label</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/dim.html" class="external-link">dim</a></span><span class="op">(</span><span class="va">hspe</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/table.html" class="external-link">table</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/pkg/SummarizedExperiment/man/SummarizedExperiment-class.html" class="external-link">colData</a></span><span class="op">(</span><span class="va">hspe</span><span class="op">)</span><span class="op">$</span><span class="va">label</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># Spatial coordinates</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/pkg/SpatialExperiment/man/SpatialExperiment-methods.html" class="external-link">spatialCoords</a></span><span class="op">(</span><span class="va">hn_spe</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/pkg/SpatialExperiment/man/SpatialExperiment-methods.html" class="external-link">spatialCoords</a></span><span class="op">(</span><span class="va">hspe</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
+<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># Per-nucleus features (H5AD only)</span></span>
+<span><span class="va">hspe_h5ad</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/imageFeatureTCGA/man/getCatalog.html" class="external-link">getCatalog</a></span><span class="op">(</span><span class="st">"hovernet"</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>    <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span></span>
+<span>        <span class="va">filename</span> <span class="op">==</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste</a></span><span class="op">(</span></span>
+<span>            <span class="st">"TCGA-23-1021-01Z-00-DX1"</span>,</span>
+<span>            <span class="st">"F07C221B-D401-47A5-9519-10DE59CA1E9D"</span>,</span>
+<span>            <span class="st">"h5ad"</span>,</span>
+<span>            <span class="st">"gz"</span>,</span>
+<span>            sep <span class="op">=</span> <span class="st">"."</span></span>
+<span>        <span class="op">)</span></span>
+<span>    <span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>    <span class="fu"><a href="https://rdrr.io/pkg/imageFeatureTCGA/man/getCatalog.html" class="external-link">getFileURLs</a></span><span class="op">(</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>    <span class="fu"><a href="https://rdrr.io/pkg/imageFeatureTCGA/man/HoverNet.html" class="external-link">HoverNet</a></span><span class="op">(</span>outClass <span class="op">=</span> <span class="st">"SpatialExperiment"</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>    <span class="fu">import</span><span class="op">(</span><span class="op">)</span></span>
+<span><span class="va">hspe_h5ad</span></span>
 <span></span>
-<span><span class="co"># Per-nucleus features (H5AD only)</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/pkg/SummarizedExperiment/man/SummarizedExperiment-class.html" class="external-link">colData</a></span><span class="op">(</span><span class="va">hn_spe</span><span class="op">)</span><span class="op">[</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"mean_intensity"</span>, <span class="st">"nearest_neighbor_distance"</span><span class="op">)</span><span class="op">]</span><span class="op">)</span></span></code></pre></div>
+<span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/pkg/SummarizedExperiment/man/SummarizedExperiment-class.html" class="external-link">colData</a></span><span class="op">(</span><span class="va">hspe_h5ad</span><span class="op">)</span><span class="op">[</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"mean_intensity"</span>, <span class="st">"nearest_neighbor_distance"</span><span class="op">)</span><span class="op">]</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level3">
 <h3 id="visualize">Visualize<a class="anchor" aria-label="anchor" href="#visualize"></a>
 </h3>
-<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">thumb_path</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span></span>
 <span>    <span class="st">"https://store.cancerdatasci.org/hovernet/thumb/"</span>,</span>
 <span>    <span class="st">"TCGA-23-1021-01Z-00-DX1.F07C221B-D401-47A5-9519-10DE59CA1E9D.png"</span></span>
 <span><span class="op">)</span></span>
 <span></span>
 <span><span class="fu"><a href="https://rdrr.io/pkg/HistoImagePlot/man/plotHoverNetH5ADOverlay.html" class="external-link">plotHoverNetH5ADOverlay</a></span><span class="op">(</span></span>
-<span>    <span class="va">hn_spe</span>,</span>
+<span>    <span class="va">hspe_h5ad</span>,</span>
 <span>    <span class="va">thumb_path</span>,</span>
 <span>    title <span class="op">=</span> <span class="st">"Ovarian Cancer — Cell Segmentation (TCGA-23-1021)"</span></span>
 <span><span class="op">)</span></span></code></pre></div>
@@ -430,27 +485,98 @@ nearest-neighbour distance):</p>
 <blockquote>
 <p><strong>Format:</strong> Hands-on</p>
 </blockquote>
-<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/waldronlab/imageTCGAutils" class="external-link">imageTCGAutils</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/r-spatial/spdep/" class="external-link">spdep</a></span><span class="op">)</span></span></code></pre></div>
 <div class="section level3">
+<h3 id="provgigapath-embeddings">ProvGigaPath embeddings<a class="anchor" aria-label="anchor" href="#provgigapath-embeddings"></a>
+</h3>
+<p>ProvGigaPath is a foundation model trained on large-scale pathology
+image tiles that produces high-dimensional embeddings summarizing visual
+and morphological features.</p>
+<p>Two levels of embeddings are provided:</p>
+<div class="section level4">
+<h4 id="slide-level-embeddings">Slide-level embeddings<a class="anchor" aria-label="anchor" href="#slide-level-embeddings"></a>
+</h4>
+<p>Slide-level embeddings summarize the entire whole-slide image into a
+single feature vector.</p>
+<ul>
+<li>one row per slide</li>
+<li>embedding dimension corresponds to the encoder output size</li>
+<li>suitable for slide-level prediction or clustering tasks</li>
+</ul>
+</div>
+<div class="section level4">
+<h4 id="tile-level-embeddings">Tile-level embeddings<a class="anchor" aria-label="anchor" href="#tile-level-embeddings"></a>
+</h4>
+<p>Tile-level embeddings provide localized representations of tissue
+regions.</p>
+<p>Each tile entry includes:</p>
+<ul>
+<li>spatial coordinates (<code>tile_x</code>, <code>tile_y</code>)
+corresponding to the tile position on the slide</li>
+<li>a high-dimensional embedding vector</li>
+<li>optional metadata describing tile extraction parameters</li>
+</ul>
+<p>These embeddings enable spatial analyses of tissue heterogeneity and
+can be integrated with cell-level data from HoVerNet using complementary
+packages such as <code>imageTCGAutils</code>.</p>
+</div>
+</div>
+<div class="section level3">
 <h3 id="import-tile-level-embeddings">Import tile-level embeddings<a class="anchor" aria-label="anchor" href="#import-tile-level-embeddings"></a>
 </h3>
-<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">tile_url</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span></span>
-<span>    <span class="st">"https://store.cancerdatasci.org/provgigapath/tile_level/"</span>,</span>
-<span>    <span class="st">"TCGA-23-1021-01Z-00-DX1.F07C221B-D401-47A5-9519-10DE59CA1E9D.csv.gz"</span></span>
-<span><span class="op">)</span></span>
+</div>
+<div class="section level3">
+<h3 id="slide-level-embeddings-1">Slide-level embeddings<a class="anchor" aria-label="anchor" href="#slide-level-embeddings-1"></a>
+</h3>
+<p>ProvGigaPath embeddings summarize tile or slide-level image features.
+In this example, we import slide-level embeddings for a single file.
+Each row corresponds to a slide, with an embedding vector describing the
+image-derived features.</p>
+<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/pkg/imageFeatureTCGA/man/getCatalog.html" class="external-link">getCatalog</a></span><span class="op">(</span><span class="op">)</span></span>
 <span></span>
-<span><span class="va">pg_tiles</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/imageFeatureTCGA/man/ProvGiga.html" class="external-link">ProvGiga</a></span><span class="op">(</span><span class="va">tile_url</span><span class="op">)</span> <span class="op">|&gt;</span> <span class="fu">import</span><span class="op">(</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/pkg/imageFeatureTCGA/man/getCatalog.html" class="external-link">getCatalog</a></span><span class="op">(</span><span class="st">"provgigapath"</span><span class="op">)</span></span></code></pre></div>
+<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">pg_slide</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/imageFeatureTCGA/man/getCatalog.html" class="external-link">getCatalog</a></span><span class="op">(</span><span class="st">"provgigapath"</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>    <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span></span>
+<span>        <span class="va">filename</span> <span class="op">==</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste</a></span><span class="op">(</span></span>
+<span>            <span class="st">"TCGA-23-1021-01Z-00-DX1"</span>,</span>
+<span>            <span class="st">"F07C221B-D401-47A5-9519-10DE59CA1E9D"</span>,</span>
+<span>            <span class="st">"csv"</span>,</span>
+<span>            <span class="st">"gz"</span>,</span>
+<span>            sep <span class="op">=</span> <span class="st">"."</span></span>
+<span>        <span class="op">)</span> <span class="op">&amp;</span></span>
+<span>        <span class="va">level</span> <span class="op">==</span> <span class="st">"slide_level"</span></span>
+<span>    <span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>    <span class="fu"><a href="https://rdrr.io/pkg/imageFeatureTCGA/man/getCatalog.html" class="external-link">getFileURLs</a></span><span class="op">(</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>    <span class="fu"><a href="https://rdrr.io/pkg/imageFeatureTCGA/man/ProvGiga.html" class="external-link">ProvGiga</a></span><span class="op">(</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>    <span class="fu">import</span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
+<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">pg_tiles</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/imageFeatureTCGA/man/getCatalog.html" class="external-link">getCatalog</a></span><span class="op">(</span><span class="st">"provgigapath"</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>    <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span></span>
+<span>        <span class="va">filename</span> <span class="op">==</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste</a></span><span class="op">(</span></span>
+<span>            <span class="st">"TCGA-23-1021-01Z-00-DX1"</span>,</span>
+<span>            <span class="st">"F07C221B-D401-47A5-9519-10DE59CA1E9D"</span>,</span>
+<span>            <span class="st">"csv"</span>,</span>
+<span>            <span class="st">"gz"</span>,</span>
+<span>            sep <span class="op">=</span> <span class="st">"."</span></span>
+<span>        <span class="op">)</span> <span class="op">&amp;</span></span>
+<span>        <span class="va">level</span> <span class="op">==</span> <span class="st">"tile_level"</span></span>
+<span>    <span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>    <span class="fu"><a href="https://rdrr.io/pkg/imageFeatureTCGA/man/getCatalog.html" class="external-link">getFileURLs</a></span><span class="op">(</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>    <span class="fu"><a href="https://rdrr.io/pkg/imageFeatureTCGA/man/ProvGiga.html" class="external-link">ProvGiga</a></span><span class="op">(</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>    <span class="fu">import</span><span class="op">(</span><span class="op">)</span></span>
 <span></span>
-<span><span class="co"># 211 tiles × 1,543 columns (tile_x, tile_y + 1,536 embedding dims named 0–1535)</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/dim.html" class="external-link">dim</a></span><span class="op">(</span><span class="va">pg_tiles</span><span class="op">)</span></span></code></pre></div>
+<span><span class="va">pg_tiles</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/dim.html" class="external-link">dim</a></span><span class="op">(</span><span class="va">pg_tiles</span><span class="op">)</span></span>
+<span><span class="co"># 211 tiles × 1,543 columns (tile_x, tile_y + 1,536 embedding dims named 0–1535)</span></span></code></pre></div>
 </div>
 <div class="section level3">
 <h3 id="pca-on-tile-embeddings">PCA on tile embeddings<a class="anchor" aria-label="anchor" href="#pca-on-tile-embeddings"></a>
 </h3>
-<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">embedding_cols</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/grep.html" class="external-link">grep</a></span><span class="op">(</span><span class="st">"^[0-9]+$"</span>, <span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">pg_tiles</span><span class="op">)</span>, value <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
 <span><span class="va">coords</span> <span class="op">&lt;-</span> <span class="va">pg_tiles</span><span class="op">[</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"tile_x"</span>, <span class="st">"tile_y"</span><span class="op">)</span><span class="op">]</span></span>
 <span></span>
@@ -458,7 +584,7 @@ nearest-neighbour distance):</p>
 <span><span class="va">pca_df</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span><span class="va">coords</span>, PC1 <span class="op">=</span> <span class="va">pca_res</span><span class="op">$</span><span class="va">x</span><span class="op">[</span>, <span class="fl">1</span><span class="op">]</span>, PC2 <span class="op">=</span> <span class="va">pca_res</span><span class="op">$</span><span class="va">x</span><span class="op">[</span>, <span class="fl">2</span><span class="op">]</span><span class="op">)</span></span>
 <span></span>
 <span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span><span class="va">pca_df</span>, <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">tile_x</span>, y <span class="op">=</span> <span class="va">tile_y</span>, color <span class="op">=</span> <span class="va">PC1</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
-<span>    <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_point.html" class="external-link">geom_point</a></span><span class="op">(</span>size <span class="op">=</span> <span class="fl">3</span><span class="op">)</span> <span class="op">+</span></span>
+<span>    <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_point.html" class="external-link">geom_point</a></span><span class="op">(</span>size <span class="op">=</span> <span class="fl">1</span><span class="op">)</span> <span class="op">+</span></span>
 <span>    <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/scale_viridis.html" class="external-link">scale_color_viridis_c</a></span><span class="op">(</span><span class="op">)</span> <span class="op">+</span></span>
 <span>    <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/coord_fixed.html" class="external-link">coord_fixed</a></span><span class="op">(</span><span class="op">)</span> <span class="op">+</span></span>
 <span>    <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggtheme.html" class="external-link">theme_minimal</a></span><span class="op">(</span><span class="op">)</span> <span class="op">+</span></span>
@@ -466,39 +592,179 @@ nearest-neighbour distance):</p>
 <span>         subtitle <span class="op">=</span> <span class="st">"TCGA-23-1021 (Ovarian Cancer)"</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level3">
-<h3 id="spatial-autocorrelation-morans-i">Spatial autocorrelation (Moran’s I)<a class="anchor" aria-label="anchor" href="#spatial-autocorrelation-morans-i"></a>
+<h3 id="point-pattern-analysis">Point Pattern Analysis<a class="anchor" aria-label="anchor" href="#point-pattern-analysis"></a>
 </h3>
-<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">nb</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://r-spatial.github.io/spdep/reference/knn2nb.html" class="external-link">knn2nb</a></span><span class="op">(</span><span class="fu"><a href="https://r-spatial.github.io/spdep/reference/knearneigh.html" class="external-link">knearneigh</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">as.matrix</a></span><span class="op">(</span><span class="va">coords</span><span class="op">)</span>, k <span class="op">=</span> <span class="fl">6</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="va">lw</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://r-spatial.github.io/spdep/reference/nb2listw.html" class="external-link">nb2listw</a></span><span class="op">(</span><span class="va">nb</span>, style <span class="op">=</span> <span class="st">"W"</span><span class="op">)</span></span>
-<span></span>
-<span><span class="va">mi</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://r-spatial.github.io/spdep/reference/moran.test.html" class="external-link">moran.test</a></span><span class="op">(</span><span class="va">pca_df</span><span class="op">$</span><span class="va">PC1</span>, <span class="va">lw</span><span class="op">)</span></span>
-<span><span class="va">mi</span></span></code></pre></div>
+<p>Point Pattern Analysis (PPA) provides a framework to investigate the
+spatial distribution of cells within histopathology images. When
+HoVerNet output is imported through <code>ImageFeatureTCGA</code>, each
+cell is represented with spatial coordinates and associated
+morphological or intensity features. These data allow the computation of
+global and local spatial autocorrelation metrics, such as Moran’s I,
+Local Moran’s I (LISA), Geary’s C, and Local Spatial Heteroscedasticity
+(LOSH).</p>
+<p>Here, we illustrate how to perform spatial autocorrelation analysis
+starting from a <code>SpatialFeatureExperiment</code> object created
+from HoVerNet segmentation results.</p>
+<div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">hsfe</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/imageFeatureTCGA/man/getCatalog.html" class="external-link">getCatalog</a></span><span class="op">(</span><span class="st">"hovernet"</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>    <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span></span>
+<span>        <span class="va">filename</span> <span class="op">==</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste</a></span><span class="op">(</span></span>
+<span>            <span class="st">"TCGA-23-1021-01Z-00-DX1"</span>,</span>
+<span>            <span class="st">"F07C221B-D401-47A5-9519-10DE59CA1E9D"</span>,</span>
+<span>            <span class="st">"h5ad"</span>,</span>
+<span>            <span class="st">"gz"</span>,</span>
+<span>            sep <span class="op">=</span> <span class="st">"."</span></span>
+<span>        <span class="op">)</span></span>
+<span>    <span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>    <span class="fu"><a href="https://rdrr.io/pkg/imageFeatureTCGA/man/getCatalog.html" class="external-link">getFileURLs</a></span><span class="op">(</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>    <span class="fu"><a href="https://rdrr.io/pkg/imageFeatureTCGA/man/HoverNet.html" class="external-link">HoverNet</a></span><span class="op">(</span>outClass <span class="op">=</span> <span class="st">"SpatialFeatureExperiment"</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>    <span class="fu">import</span><span class="op">(</span><span class="op">)</span></span>
+<span><span class="va">hsfe</span></span></code></pre></div>
+<p>To investigate spatial patterns in the tissue, we use the PCA-reduced
+embeddings for each tile. Each tile has a physical location (tile_x,
+tile_y) on the slide, which allows us to explore how similar embedding
+values cluster across space. We construct a k-nearest neighbor graph to
+define which tiles are spatially “connected,” and then compute global
+and local spatial autocorrelation metrics.</p>
 </div>
 <div class="section level3">
-<h3 id="import-slide-level-embeddings-for-tcga-ov">Import slide-level embeddings for TCGA-OV<a class="anchor" aria-label="anchor" href="#import-slide-level-embeddings-for-tcga-ov"></a>
+<h3 id="spatial-autocorrelation-morans-i">Spatial autocorrelation (Moran’s I)<a class="anchor" aria-label="anchor" href="#spatial-autocorrelation-morans-i"></a>
 </h3>
-<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># Multiple slides → SummarizedExperiment (768 × n slides)</span></span>
-<span><span class="va">pgl</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/imageFeatureTCGA/man/getCatalog.html" class="external-link">getCatalog</a></span><span class="op">(</span><span class="st">"provgigapath"</span><span class="op">)</span> <span class="op">|&gt;</span></span>
-<span>    <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">level</span> <span class="op">==</span> <span class="st">"slide_level"</span>, <span class="va">Project.ID</span> <span class="op">==</span> <span class="st">"TCGA-OV"</span><span class="op">)</span> <span class="op">|&gt;</span></span>
-<span>    <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/slice.html" class="external-link">slice</a></span><span class="op">(</span><span class="fl">1</span><span class="op">:</span><span class="fl">10</span><span class="op">)</span> <span class="op">|&gt;</span></span>
-<span>    <span class="fu"><a href="https://rdrr.io/pkg/imageFeatureTCGA/man/getCatalog.html" class="external-link">getFileURLs</a></span><span class="op">(</span><span class="op">)</span> <span class="op">|&gt;</span></span>
-<span>    <span class="fu"><a href="https://rdrr.io/pkg/imageFeatureTCGA/man/ProvGigaList.html" class="external-link">ProvGigaList</a></span><span class="op">(</span><span class="op">)</span> <span class="op">|&gt;</span></span>
-<span>    <span class="fu">import</span><span class="op">(</span><span class="op">)</span></span>
+<p>Moran’s I quantifies the degree to which similar values cluster
+spatially. A positive Moran’s I indicates spatial clustering, while
+negative values indicate spatial dispersion.</p>
+<div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">pg_tiles</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/bind_cols.html" class="external-link">bind_cols</a></span><span class="op">(</span></span>
+<span>    <span class="va">pg_tiles</span>,</span>
+<span>    <span class="fu"><a href="https://tibble.tidyverse.org/reference/as_tibble.html" class="external-link">as_tibble</a></span><span class="op">(</span><span class="va">pca_res</span><span class="op">$</span><span class="va">x</span><span class="op">)</span><span class="op">[</span>, <span class="fl">1</span><span class="op">:</span><span class="fl">2</span><span class="op">]</span> <span class="op">|&gt;</span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/rename.html" class="external-link">rename</a></span><span class="op">(</span>PC1 <span class="op">=</span> <span class="st">"PC1"</span>, PC2 <span class="op">=</span> <span class="st">"PC2"</span><span class="op">)</span></span>
+<span><span class="op">)</span></span>
 <span></span>
-<span><span class="va">pgl</span></span>
-<span><span class="co"># class: SummarizedExperiment</span></span>
-<span><span class="co"># dim: 768 10</span></span>
-<span><span class="co"># assays(1): embeddings</span></span></code></pre></div>
+<span><span class="va">coords</span> <span class="op">&lt;-</span> <span class="va">pg_tiles</span><span class="op">[</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"tile_x"</span>, <span class="st">"tile_y"</span><span class="op">)</span><span class="op">]</span></span></code></pre></div>
+<div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">nb</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://r-spatial.github.io/spdep/reference/knn2nb.html" class="external-link">knn2nb</a></span><span class="op">(</span><span class="fu"><a href="https://r-spatial.github.io/spdep/reference/knearneigh.html" class="external-link">knearneigh</a></span><span class="op">(</span><span class="va">coords</span>, k <span class="op">=</span> <span class="fl">6</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="va">lw</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://r-spatial.github.io/spdep/reference/nb2listw.html" class="external-link">nb2listw</a></span><span class="op">(</span><span class="va">nb</span>, style <span class="op">=</span> <span class="st">"W"</span><span class="op">)</span></span></code></pre></div>
+<p>Next, we calculate global spatial autocorrelation using Moran’s I and
+Geary’s C, which quantify the overall tendency of similar PC1 values to
+cluster or disperse on the tissue slide. We also compute Local Moran’s I
+(LISA) to detect local clusters of similar embedding values.</p>
+<div class="sourceCode" id="cb19"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">mi</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://r-spatial.github.io/spdep/reference/moran.test.html" class="external-link">moran.test</a></span><span class="op">(</span><span class="va">pg_tiles</span><span class="op">$</span><span class="va">PC1</span>, <span class="va">lw</span><span class="op">)</span></span>
+<span><span class="va">gc</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://r-spatial.github.io/spdep/reference/geary.test.html" class="external-link">geary.test</a></span><span class="op">(</span><span class="va">pg_tiles</span><span class="op">$</span><span class="va">PC1</span>, <span class="va">lw</span><span class="op">)</span></span>
+<span><span class="va">lisa</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://r-spatial.github.io/spdep/reference/localmoran.html" class="external-link">localmoran</a></span><span class="op">(</span><span class="va">pg_tiles</span><span class="op">$</span><span class="va">PC1</span>, <span class="va">lw</span><span class="op">)</span></span>
+<span><span class="va">pg_tiles</span><span class="op">$</span><span class="va">localI</span> <span class="op">&lt;-</span> <span class="va">lisa</span><span class="op">[</span>, <span class="st">"Ii"</span><span class="op">]</span></span>
+<span><span class="va">pg_tiles</span><span class="op">$</span><span class="va">localI_pval</span> <span class="op">&lt;-</span> <span class="va">lisa</span><span class="op">[</span>, <span class="st">"Pr(z != E(Ii))"</span><span class="op">]</span></span>
+<span></span>
+<span><span class="va">mi</span></span>
+<span><span class="va">gc</span></span></code></pre></div>
+<p>We visualize the spatial patterns. The Moran scatterplot shows the
+relationship between each tile’s PC1 value and the mean of its
+neighbors, while the LISA plot highlights local clusters (“hotspots”) of
+high or low PC1 values across the tissue slide.</p>
+<div class="sourceCode" id="cb20"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://r-spatial.github.io/spdep/reference/moran.plot.html" class="external-link">moran.plot</a></span><span class="op">(</span><span class="va">pg_tiles</span><span class="op">$</span><span class="va">PC1</span>, <span class="va">lw</span>, labels <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>                main <span class="op">=</span> <span class="st">"Moran scatterplot of PC1"</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># LISA visualization</span></span>
+<span><span class="va">df_lisa</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span><span class="va">coords</span>, Ii <span class="op">=</span> <span class="va">lisa</span><span class="op">[</span>, <span class="st">"Ii"</span><span class="op">]</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span><span class="va">df_lisa</span>, <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">tile_x</span>, y <span class="op">=</span> <span class="va">tile_y</span>, color <span class="op">=</span> <span class="va">Ii</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
+<span>    <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_point.html" class="external-link">geom_point</a></span><span class="op">(</span>size <span class="op">=</span> <span class="fl">1</span><span class="op">)</span> <span class="op">+</span></span>
+<span>    <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/scale_viridis.html" class="external-link">scale_color_viridis_c</a></span><span class="op">(</span><span class="op">)</span> <span class="op">+</span></span>
+<span>    <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/coord_fixed.html" class="external-link">coord_equal</a></span><span class="op">(</span><span class="op">)</span> <span class="op">+</span></span>
+<span>    <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggtheme.html" class="external-link">theme_minimal</a></span><span class="op">(</span><span class="op">)</span> <span class="op">+</span></span>
+<span>    <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">ggtitle</a></span><span class="op">(</span><span class="st">"Local Moran's I (LISA) for PC1"</span><span class="op">)</span></span></code></pre></div>
+<ul>
+<li>
+<strong>Ripley’s K / L function</strong> — tests for clustering
+vs. regularity at multiple spatial scales</li>
+<li>
+<strong>Cross-type K function</strong> — spatial interaction between
+pairs of cell types (e.g. neoplastic and inflammatory)</li>
+</ul>
+<div class="sourceCode" id="cb21"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="http://spatstat.org/" class="external-link">spatstat</a></span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">coords</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/as.data.frame.html" class="external-link">as.data.frame</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/pkg/SpatialExperiment/man/SpatialExperiment-methods.html" class="external-link">spatialCoords</a></span><span class="op">(</span><span class="va">hspe</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="va">types</span>  <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/SummarizedExperiment/man/SummarizedExperiment-class.html" class="external-link">colData</a></span><span class="op">(</span><span class="va">hspe</span><span class="op">)</span><span class="op">$</span><span class="va">label</span></span>
+<span></span>
+<span><span class="co"># Create a marked point pattern</span></span>
+<span><span class="va">win</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/spatstat.geom/man/owin.html" class="external-link">owin</a></span><span class="op">(</span></span>
+<span>  xrange <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/range.html" class="external-link">range</a></span><span class="op">(</span><span class="va">coords</span><span class="op">$</span><span class="va">x</span><span class="op">)</span>,</span>
+<span>  yrange <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/range.html" class="external-link">range</a></span><span class="op">(</span><span class="va">coords</span><span class="op">$</span><span class="va">y</span><span class="op">)</span></span>
+<span><span class="op">)</span></span>
+<span><span class="va">pp</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/spatstat.geom/man/ppp.html" class="external-link">ppp</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">coords</span><span class="op">$</span><span class="va">x</span>, y <span class="op">=</span> <span class="va">coords</span><span class="op">$</span><span class="va">y</span>, marks <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/factor.html" class="external-link">factor</a></span><span class="op">(</span><span class="va">types</span><span class="op">)</span>, window <span class="op">=</span> <span class="va">win</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Ripley's L for neoplastic cells</span></span>
+<span><span class="va">L_neo</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/spatstat.explore/man/Lest.html" class="external-link">Lest</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/subset.html" class="external-link">subset</a></span><span class="op">(</span><span class="va">pp</span>, <span class="va">marks</span> <span class="op">==</span> <span class="st">"neopla"</span><span class="op">)</span>, correction <span class="op">=</span> <span class="st">"isotropic"</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">L_neo</span>, main <span class="op">=</span> <span class="st">"Ripley's L — neoplastic nuclei"</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Cross-type K: neoplastic vs. inflammatory - run if you have enough RAM (&gt;20GB)</span></span>
+<span><span class="co"># K_cross &lt;- Kcross(pp, i = "neopla", j = "inflam", correction = "isotropic")</span></span>
+<span><span class="co"># plot(K_cross, main = "Cross-type K: neoplastic vs. inflammatory")</span></span></code></pre></div>
 </div>
+</div>
+<div class="section level2">
+<h2 id="adding-hovernet-nuclei-features">Adding HoverNet Nuclei Features<a class="anchor" aria-label="anchor" href="#adding-hovernet-nuclei-features"></a>
+</h2>
+<p>You can import HoVerNet segmentation results as a
+<code>SpatialExperiment</code> or
+<code>SpatialFeatureExperiment</code>.</p>
+<p>In this section we want show you how to integrate HoVerNet
+classification and segmentation output with Prov-GigaPath
+embeddings.</p>
+<div class="sourceCode" id="cb22"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># import HoVerNet</span></span>
+<span><span class="va">hspe_h5ad</span></span>
+<span></span>
+<span><span class="co"># import Prov-GigaPath</span></span>
+<span><span class="va">pg_tiles</span></span></code></pre></div>
+<div class="sourceCode" id="cb23"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># Extract cell coordinates from HoVerNet</span></span>
+<span><span class="va">cell_coords</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/SpatialExperiment/man/SpatialExperiment-methods.html" class="external-link">spatialCoords</a></span><span class="op">(</span><span class="va">hspe_h5ad</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Extract nuclei metadata </span></span>
+<span><span class="va">cell_meta</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/SummarizedExperiment/man/SummarizedExperiment-class.html" class="external-link">colData</a></span><span class="op">(</span><span class="va">hspe_h5ad</span><span class="op">)</span></span>
+<span><span class="va">cell_meta</span><span class="op">$</span><span class="va">x</span> <span class="op">&lt;-</span><span class="va">cell_coords</span><span class="op">[</span>,<span class="fl">1</span><span class="op">]</span></span>
+<span><span class="va">cell_meta</span><span class="op">$</span><span class="va">y</span> <span class="op">&lt;-</span><span class="va">cell_coords</span><span class="op">[</span>,<span class="fl">2</span><span class="op">]</span></span></code></pre></div>
+</div>
+<div class="section level2">
+<h2 id="visualizing-hovernet-nuclei-vs-tile-coordinates-to-see-that-they-do-not-match">Visualizing Hovernet nuclei vs tile coordinates to see that they do
+not match<a class="anchor" aria-label="anchor" href="#visualizing-hovernet-nuclei-vs-tile-coordinates-to-see-that-they-do-not-match"></a>
+</h2>
+<p>perfectly. You can use matchHoverNetToTiles to compute the scaling
+factor.</p>
+<div class="sourceCode" id="cb24"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">cell_meta</span><span class="op">$</span><span class="va">x</span>, <span class="va">cell_meta</span><span class="op">$</span><span class="va">y</span>, pch<span class="op">=</span><span class="fl">16</span>, col<span class="op">=</span><span class="st">"#0000FF20"</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/graphics/points.html" class="external-link">points</a></span><span class="op">(</span><span class="va">pg_tiles</span><span class="op">$</span><span class="va">tile_x</span>, </span>
+<span>        <span class="va">pg_tiles</span><span class="op">$</span><span class="va">tile_y</span>, </span>
+<span>        pch<span class="op">=</span><span class="fl">16</span>, </span>
+<span>        col<span class="op">=</span><span class="st">"#FF000020"</span><span class="op">)</span></span></code></pre></div>
+</div>
+<div class="section level2">
+<h2 id="scale-factor-between-nuclei-coordinates-and-tile-coordinates">Scale factor between nuclei coordinates and tile coordinates<a class="anchor" aria-label="anchor" href="#scale-factor-between-nuclei-coordinates-and-tile-coordinates"></a>
+</h2>
+<div class="sourceCode" id="cb25"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">match_hv_pg</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/imageTCGAutils/man/matchHoverNetToTiles.html" class="external-link">matchHoverNetToTiles</a></span><span class="op">(</span><span class="va">hspe_h5ad</span>, <span class="va">pg_tiles</span><span class="op">)</span></span></code></pre></div>
+<div class="sourceCode" id="cb26"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># ggplot(match_hv_pg$tiles_with_nuclei, aes(tile_x, tile_y, </span></span>
+<span><span class="co">#                                     color = cell_type_label, </span></span>
+<span><span class="co">#                                     size = N)) +</span></span>
+<span><span class="co">#     geom_point(alpha = 0.7) +</span></span>
+<span><span class="co">#     coord_equal() +</span></span>
+<span><span class="co">#     theme_minimal() +</span></span>
+<span><span class="co">#     labs(title = "All HoverNet cell types per tile")</span></span>
+<span></span>
+<span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span><span class="va">match_hv_pg</span><span class="op">$</span><span class="va">tiles_with_nuclei</span>, <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span><span class="va">tile_x</span>, <span class="va">tile_y</span>, </span>
+<span>                                    color <span class="op">=</span> <span class="va">dominant_cell_type</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
+<span>    <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_point.html" class="external-link">geom_point</a></span><span class="op">(</span>size <span class="op">=</span> <span class="fl">1</span><span class="op">)</span> <span class="op">+</span></span>
+<span>    <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/coord_fixed.html" class="external-link">coord_equal</a></span><span class="op">(</span><span class="op">)</span> <span class="op">+</span></span>
+<span>    <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggtheme.html" class="external-link">theme_minimal</a></span><span class="op">(</span><span class="op">)</span> <span class="op">+</span></span>
+<span>    <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">labs</a></span><span class="op">(</span>title <span class="op">=</span> <span class="st">"Per-tile dominant HoverNet cell type"</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 class="demo" id="part-7-multi-modal-integration-7080-min">Part 7 — Multi-Modal Integration (70–80 min)<a class="anchor" aria-label="anchor" href="#part-7-multi-modal-integration-7080-min"></a>
 </h2>
 <blockquote>
-<p><strong>Format:</strong> Demo / Slides — TBD (working code to be
-added before the workshop)</p>
+<p><strong>Format:</strong> Slides / Hands-on</p>
 </blockquote>
 <p>Planned content:</p>
 <ul>
@@ -508,10 +774,24 @@ clinical data for TCGA-OV</li>
 variation</li>
 <li>Visualize latent factors coloured by clinical annotation</li>
 </ul>
-<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># TBD: MOFA2 integration example with TCGA-OV</span></span>
-<span><span class="co"># library(MOFA2)</span></span>
-<span><span class="co"># ...</span></span></code></pre></div>
+<div class="sourceCode" id="cb27"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://biofam.github.io/MOFA2/index.html" class="external-link">MOFA2</a></span><span class="op">)</span></span></code></pre></div>
+</div>
+<div class="section level2">
+<h2 id="load-data">Load data<a class="anchor" aria-label="anchor" href="#load-data"></a>
+</h2>
+<div class="sourceCode" id="cb28"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">ov_slide_files</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/imageFeatureTCGA/man/getCatalog.html" class="external-link">getCatalog</a></span><span class="op">(</span><span class="st">"provgigapath"</span><span class="op">)</span> <span class="op">|&gt;</span> </span>
+<span>    <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">Project.ID</span> <span class="op">==</span> <span class="st">"TCGA-OV"</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">ov_slide_files</span> <span class="op">&lt;-</span> <span class="va">ov_slide_files</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">5</span>, <span class="op">]</span></span>
+<span></span>
+<span></span>
+<span><span class="va">structure_last</span> <span class="op">&lt;-</span> <span class="va">ov_slide_files</span> <span class="op">|&gt;</span></span>
+<span>    <span class="fu"><a href="https://rdrr.io/pkg/imageFeatureTCGA/man/getCatalog.html" class="external-link">getFileURLs</a></span><span class="op">(</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>    <span class="fu"><a href="https://rdrr.io/pkg/imageFeatureTCGA/man/ProvGigaList.html" class="external-link">ProvGigaList</a></span><span class="op">(</span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">rownames</a></span><span class="op">(</span><span class="va">structure_last</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="va">ov_slide_files</span><span class="op">[[</span><span class="st">"tcga_barcode"</span><span class="op">]</span><span class="op">]</span></span></code></pre></div>
 <blockquote>
 <p>See the <a href="downstream-analyses.html">Downstream Analyses
 vignette</a> for a more detailed walkthrough.</p>
@@ -523,25 +803,13 @@ vignette</a> for a more detailed walkthrough.</p>
 <blockquote>
 <p><strong>Format:</strong> Open</p>
 </blockquote>
-<p>Participants can explore their cancer type of interest:</p>
-<div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># Browse available cancer types</span></span>
-<span><span class="fu"><a href="https://rdrr.io/pkg/imageFeatureTCGA/man/getCatalog.html" class="external-link">getCatalog</a></span><span class="op">(</span><span class="st">"hovernet"</span><span class="op">)</span> <span class="op">|&gt;</span></span>
-<span>    <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/count.html" class="external-link">count</a></span><span class="op">(</span><span class="va">Project.ID</span>, sort <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
-<span></span>
-<span><span class="co"># Pick a cancer type and repeat the workflow</span></span>
-<span><span class="fu"><a href="https://rdrr.io/pkg/imageFeatureTCGA/man/getCatalog.html" class="external-link">getCatalog</a></span><span class="op">(</span><span class="st">"provgigapath"</span><span class="op">)</span> <span class="op">|&gt;</span></span>
-<span>    <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">level</span> <span class="op">==</span> <span class="st">"slide_level"</span>, <span class="va">Project.ID</span> <span class="op">==</span> <span class="st">"TCGA-BRCA"</span><span class="op">)</span> <span class="op">|&gt;</span></span>
-<span>    <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/slice.html" class="external-link">slice</a></span><span class="op">(</span><span class="fl">1</span><span class="op">:</span><span class="fl">5</span><span class="op">)</span> <span class="op">|&gt;</span></span>
-<span>    <span class="fu"><a href="https://rdrr.io/pkg/imageFeatureTCGA/man/getCatalog.html" class="external-link">getFileURLs</a></span><span class="op">(</span><span class="op">)</span> <span class="op">|&gt;</span></span>
-<span>    <span class="fu"><a href="https://rdrr.io/pkg/imageFeatureTCGA/man/ProvGigaList.html" class="external-link">ProvGigaList</a></span><span class="op">(</span><span class="op">)</span> <span class="op">|&gt;</span></span>
-<span>    <span class="fu">import</span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
+<p>Participants can explore their cancer type of interest!</p>
 <hr>
 </div>
 <div class="section level2">
 <h2 id="session-information">Session Information<a class="anchor" aria-label="anchor" href="#session-information"></a>
 </h2>
-<div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb29"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu">sessioninfo</span><span class="fu">::</span><span class="fu"><a href="https://sessioninfo.r-lib.org/reference/session_info.html" class="external-link">session_info</a></span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB; font-weight: bold;">─ Session info ───────────────────────────────────────────────────────────────</span></span></span>
 <span><span class="co">#&gt;  <span style="color: #555555; font-style: italic;">setting </span> <span style="color: #555555; font-style: italic;">value</span></span></span>
@@ -553,7 +821,7 @@ vignette</a> for a more detailed walkthrough.</p>
 <span><span class="co">#&gt;  collate  en_US.UTF-8</span></span>
 <span><span class="co">#&gt;  ctype    en_US.UTF-8</span></span>
 <span><span class="co">#&gt;  tz       Etc/UTC</span></span>
-<span><span class="co">#&gt;  date     2026-05-31</span></span>
+<span><span class="co">#&gt;  date     2026-06-02</span></span>
 <span><span class="co">#&gt;  pandoc   3.9.0.2 @ /usr/bin/ (via rmarkdown)</span></span>
 <span><span class="co">#&gt;  quarto   1.9.36 @ /usr/local/bin/quarto</span></span>
 <span><span class="co">#&gt; </span></span>

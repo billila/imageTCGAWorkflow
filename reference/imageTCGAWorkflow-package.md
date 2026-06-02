@@ -11,5 +11,11 @@ vignette for the complete workflow.
 ## Author
 
 **Maintainer**: Ilaria Billato <ilaria.billato@unipd.it>
-([ORCID](https://orcid.org/0000-0002-3335-3254)) (Department of Biology,
-University of Padova)
+([ORCID](https://orcid.org/0000-0002-3335-3254)) (affiliation:
+Department of Biology, University of Padova)
+
+Authors:
+
+- Ilaria Billato <ilaria.billato@unipd.it>
+  ([ORCID](https://orcid.org/0000-0002-3335-3254)) (affiliation:
+  Department of Biology, University of Padova)
