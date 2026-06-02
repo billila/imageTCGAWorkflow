@@ -1,7 +1,7 @@
 ## BuildABiocWorkshop-style workflow for imageTCGAWorkflow
 ## Ref: https://github.com/Bioconductor/BuildABiocWorkshop
 
-name: Build and deploy
+name: Build, check, and push Docker image
 
 on:
   push:
@@ -16,9 +16,41 @@ env:
 jobs:
 
   ## ──────────────────────────────────────────────
-  ## 1. Build pkgdown site → GitHub Pages
+  ## 1. R CMD check
+  ## ──────────────────────────────────────────────
+  r-cmd-check:
+    runs-on: ubuntu-latest
+    container: bioconductor/bioconductor_docker:RELEASE_3_23
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install system dependencies
+        run: |
+          apt-get update && apt-get install -y --no-install-recommends \
+            python3-pip libicu-dev libhdf5-dev \
+            libgdal-dev libudunits2-dev libproj-dev libgeos-dev
+
+      - name: Install package dependencies
+        run: |
+          Rscript -e "devtools::install('.', dependencies = TRUE)"
+
+      - name: R CMD check
+        run: |
+          rcmdcheck::rcmdcheck(
+            args = c("--no-manual", "--timings"),
+            build_args = c("--no-manual", "--keep-empty-dirs", "--no-resave-data"),
+            error_on = "warning",
+            check_dir = "check"
+          )
+        shell: Rscript {0}
+
+
+  ## ──────────────────────────────────────────────
+  ## 2. Build pkgdown site → GitHub Pages
   ## ──────────────────────────────────────────────
   pkgdown:
+    needs: r-cmd-check
     runs-on: ubuntu-latest
     container: bioconductor/bioconductor_docker:RELEASE_3_23
     permissions:
@@ -31,7 +63,7 @@ jobs:
         run: |
           apt-get update && apt-get install -y --no-install-recommends \
             python3-pip libicu-dev libhdf5-dev \
-            libgdal-dev libudunits2-dev libproj-dev libgeos-dev rsync
+            libgdal-dev libudunits2-dev libproj-dev libgeos-dev
 
       - name: Install package + pkgdown
         run: |
@@ -43,6 +75,10 @@ jobs:
           Rscript -e "pkgdown::build_site_github_pages( \
             new_process = FALSE, install = FALSE)"
 
+      - name: Install rsync
+        run: |
+          apt-get update && apt-get install -y rsync
+
       - name: Deploy to GitHub Pages
         if: github.event_name == 'push'
         uses: JamesIves/github-pages-deploy-action@v4
@@ -51,9 +87,10 @@ jobs:
           clean: false
 
   ## ──────────────────────────────────────────────
-  ## 2. Docker build + push to GHCR
+  ## 3. Docker build + push to GHCR
   ## ──────────────────────────────────────────────
   docker:
+    needs: r-cmd-check
     if: github.event_name == 'push'
     runs-on: ubuntu-latest
     permissions:
@@ -62,9 +99,6 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
 
       - name: Log in to GHCR
         uses: docker/login-action@v3
@@ -89,5 +123,3 @@ jobs:
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
