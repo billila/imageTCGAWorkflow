@@ -20,7 +20,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 
 COPY --chown=rstudio:rstudio . /home/rstudio/imageTCGAWorkflow
 
-RUN Rscript -e "reticulate::use_python('/usr/bin/python3', force=TRUE)"
-
 RUN Rscript -e "devtools::install('imageTCGAWorkflow', dependencies = TRUE, \
     build_vignettes = TRUE)"
+
+RUN Rscript -e "reticulate::use_python('/usr/bin/python3', force=TRUE)"
