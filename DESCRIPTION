@@ -29,6 +29,7 @@ Depends:
     R (>= 4.5.0)
 Suggests:
     anndataR,
+    basilisk,
     BiocFileCache,
     BiocIO,
     BiocStyle,
@@ -50,7 +51,9 @@ Suggests:
     MOFA2,
     MultiAssayExperiment,
     patchwork,
+    reticulate,
     rmarkdown,
+    Rtsne,
     scrapper,
     sessioninfo,
     Seurat,
