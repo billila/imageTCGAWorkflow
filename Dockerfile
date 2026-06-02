@@ -1,9 +1,10 @@
 FROM bioconductor/bioconductor_docker:RELEASE_3_23
-
 WORKDIR /home/rstudio
 
-# System libraries for spatial packages (sf, spdep, sfdep, spatstat)
 RUN apt-get update && apt-get install -y --no-install-recommends \
+        python3 \
+        python3-setuptools \
+        python3-dev \
         python3-pip \
         libicu-dev \
         libhdf5-dev \
@@ -11,13 +12,16 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
         libudunits2-dev \
         libproj-dev \
         libgeos-dev \
-    && pip3 install --break-system-packages tensorflow \
+        libcurl4-openssl-dev \
+        libcairo2-dev libfreetype6-dev libpng-dev \
+        libtiff5-dev libjpeg-dev libxt-dev libharfbuzz-dev libfribidi-dev \
+    && pip3 install --break-system-packages mofapy2==0.7.1 \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
-# Copy workshop package source
 COPY --chown=rstudio:rstudio . /home/rstudio/imageTCGAWorkflow
 
-# Install the package + all Depends/Imports/Suggests from DESCRIPTION
+RUN Rscript -e "reticulate::use_python('/usr/bin/python3', force=TRUE)"
+
 RUN Rscript -e "devtools::install('imageTCGAWorkflow', dependencies = TRUE, \
     build_vignettes = TRUE)"
