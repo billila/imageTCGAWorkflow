@@ -1,5 +1,6 @@
 FROM bioconductor/bioconductor_docker:RELEASE_3_23
 WORKDIR /home/rstudio
+ENV RETICULATE_PYTHON=/usr/bin/python3
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
         python3 \
@@ -23,4 +24,7 @@ COPY --chown=rstudio:rstudio . /home/rstudio/imageTCGAWorkflow
 RUN Rscript -e "devtools::install('imageTCGAWorkflow', dependencies = TRUE, \
     build_vignettes = TRUE)"
 
-RUN Rscript -e "reticulate::use_python('/usr/bin/python3', force=TRUE)"
+# Crea .Rprofile per rstudio: inizializza python all'avvio
+RUN echo 'reticulate::use_python("/usr/bin/python3")' \
+    >> /home/rstudio/.Rprofile && \
+    chown rstudio:rstudio /home/rstudio/.Rprofile
