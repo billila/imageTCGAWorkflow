@@ -12,10 +12,9 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
         libudunits2-dev \
         libproj-dev \
         libgeos-dev \
-        libcurl4-openssl-dev \
         libcairo2-dev libfreetype6-dev libpng-dev \
         libtiff5-dev libjpeg-dev libxt-dev libharfbuzz-dev libfribidi-dev \
-    && pip3 install --break-system-packages mofapy2==0.7.1 \
+    && pip3 install --break-system-packages --ignore-installed mofapy2==0.7.1 \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
