@@ -1,0 +1,5 @@
+inst/extdata/mydata.rds
+inst/extdata/*.rds
+.Rproj.user
+.Rhistory
+*.Rdata
