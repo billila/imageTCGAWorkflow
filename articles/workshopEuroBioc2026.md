@@ -80,10 +80,10 @@ Slides will be used to introduce concepts before each hands-on block.
 |----|----|----|
 | 0–15 min | Introduction: histopathology + the Bioconductor gap | Slides |
 | 15–30 min | Ecosystem overview: the 4 packages and the TCGA resource | Slides + Hands-on |
-| 30-40 min | Raw Image Download using ‘imageTCGA’ | Hands-on |
-| 40–55 min | HoVerNet nuclei features: import, explore, visualize | Hands-on |
-| 55–70 min | Prov-GigaPath embeddings: tile & slide level, PCA, spatial stats | Hands-on |
-| 70–80 min | Multi-modal integration with MOFA | Demo / Slides |
+| 30-40 min | Raw Image Download using ‘imageTCGA’ | Slides + Hands-on |
+| 40–55 min | HoVerNet nuclei features: import, explore, visualize | Slides + Hands-on |
+| 55–70 min | Prov-GigaPath embeddings: tile & slide level, PCA, spatial stats | Slides + Hands-on |
+| 70–80 min | Multi-modal integration with MOFA | Slides + Hands-on |
 | 80–90 min | Q&A and free exploration | Open |
 
 ## Learning Goals
@@ -614,30 +614,104 @@ ggplot(match_hv_pg$tiles_with_nuclei, aes(tile_x, tile_y,
 
 > **Format:** Slides / Hands-on
 
-Planned content:
+We integrate image-derived features (Prov-GigaPath slide-level
+embeddings) with TCGA molecular data using MOFA+ (`MOFA2`). This
+identifies joint factors of variation across modalities.
 
-- Combine Prov-GigaPath slide-level embeddings with TCGA RNA-seq or
-  clinical data for TCGA-OV
-- Run MOFA+ (`MOFA2`) to identify joint factors of variation
-- Visualize latent factors coloured by clinical annotation
+The pre-computed data used here (10 TCGA-OV samples with matched
+embeddings, RNA-seq, and methylation) is shipped with the package. The
+code to regenerate these files from scratch is provided below in
+comments.
 
 ``` r
 
 library(MOFA2)
+library(ggplot2)
 ```
 
-## Load data
+### Load pre-computed data
 
 ``` r
 
-hspe
+embed_mat <- readRDS(system.file("extdata", "ov_embeddings.rds",
+                                  package = "imageTCGAWorkflow"))
+rna_mat   <- readRDS(system.file("extdata", "ov_rnaseq.rds",
+                                  package = "imageTCGAWorkflow"))
+meth_mat  <- readRDS(system.file("extdata", "ov_methylation.rds",
+                                  package = "imageTCGAWorkflow"))
+
+message("Samples:             ", ncol(embed_mat))
+message("Embedding dims:      ", nrow(embed_mat))
+message("RNA-seq genes:       ", nrow(rna_mat))
+message("Methylation probes:  ", nrow(meth_mat))
+```
+
+### Create and train MOFA object
+
+``` r
+
+mofa_data <- list(
+    image       = embed_mat,
+    rnaseq      = rna_mat,
+    methylation = meth_mat
+)
+
+mofa_obj <- create_mofa(mofa_data)
+```
+
+``` r
+
+p_overview <- plot_data_overview(mofa_obj)
+print(p_overview)
+```
+
+``` r
+
+model_opts             <- get_default_model_options(mofa_obj)
+model_opts$num_factors <- 3
+
+train_opts                  <- get_default_training_options(mofa_obj)
+train_opts$seed             <- 42
+train_opts$maxiter          <- 250
+train_opts$convergence_mode <- "fast"
+train_opts$verbose          <- FALSE
+
+mofa_obj <- prepare_mofa(mofa_obj,
+    model_options    = model_opts,
+    training_options = train_opts
+)
+mofa_obj <- run_mofa(mofa_obj, outfile = NULL, use_basilisk = FALSE)
+```
+
+### Results
+
+``` r
+
+var_exp <- get_variance_explained(mofa_obj)
+print(var_exp$r2_per_factor)
+
+# Variance explained per factor per view
+p_var <- plot_variance_explained(mofa_obj) +
+    ggtitle("MOFA — Variance explained per factor (TCGA-OV)")
+print(p_var)
+
+# Total variance explained per view
+p_tot <- plot_variance_explained(mofa_obj, plot_total = TRUE)
+print(p_tot[[1]])
+print(p_tot[[2]])
+```
+
+``` r
+
+Z_mat <- get_factors(mofa_obj, factors = "all")[[1]]
+
+# Plot latent factors
+plot_factors(mofa_obj, factors = c(1, 2)) 
 ```
 
 ## Part 7 — Q&A and Free Exploration (80–90 min)
 
 > **Format:** Open
-
-Participants can explore their cancer type of interest!
 
 ------------------------------------------------------------------------
 
@@ -656,7 +730,7 @@ sessioninfo::session_info()
 #>  collate  en_US.UTF-8
 #>  ctype    en_US.UTF-8
 #>  tz       Etc/UTC
-#>  date     2026-06-02
+#>  date     2026-06-03
 #>  pandoc   3.9.0.2 @ /usr/bin/ (via rmarkdown)
 #>  quarto   1.9.36 @ /usr/local/bin/quarto
 #> 

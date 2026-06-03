@@ -236,7 +236,7 @@ sessioninfo::session_info()
 #>  collate  en_US.UTF-8
 #>  ctype    en_US.UTF-8
 #>  tz       Etc/UTC
-#>  date     2026-06-02
+#>  date     2026-06-03
 #>  pandoc   3.9.0.2 @ /usr/bin/ (via rmarkdown)
 #>  quarto   1.9.36 @ /usr/local/bin/quarto
 #> 
