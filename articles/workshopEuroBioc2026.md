@@ -295,6 +295,7 @@ thumb_path <- paste0(
 plotHoverNetH5ADOverlay(
     hspe_h5ad,
     thumb_path,
+    title_size = 12,
     title = "Ovarian Cancer — Cell Segmentation (TCGA-23-1021)"
 )
 ```
@@ -341,8 +342,6 @@ Each tile entry includes:
 These embeddings enable spatial analyses of tissue heterogeneity and can
 be integrated with cell-level data from HoVerNet using complementary
 packages such as `imageTCGAutils`.
-
-### Import tile-level embeddings
 
 ### Slide-level embeddings
 
