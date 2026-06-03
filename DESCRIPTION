@@ -61,6 +61,7 @@ Suggests:
     SingleCellExperiment,
     spatstat,
     SpatialExperiment,
+    SpatialFeatureExperiment,
     spdep,
     SummarizedExperiment,
     uwot
